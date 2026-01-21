@@ -1,0 +1,136 @@
+@import './global.css';
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 200px);
+  padding: 40px 20px;
+}
+
+.auth-form-wrapper {
+  background-color: var(--white);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 40px;
+  max-width: 450px;
+  width: 100%;
+}
+
+.auth-form-wrapper h2 {
+  text-align: center;
+  color: var(--primary-color);
+  margin-bottom: 30px;
+  font-size: 24px;
+}
+
+.auth-form-wrapper.register-wrapper {
+  max-width: 550px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.auth-form .form-group {
+  margin-bottom: 0;
+}
+
+.auth-form .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 14px;
+}
+
+.auth-form .form-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.auth-form .form-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.auth-form .btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: var(--text-light);
+}
+
+.auth-footer p {
+  margin: 0;
+}
+
+.auth-footer .link {
+  color: var(--primary-color);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-form .btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.password-requirements {
+  background-color: #fff9e6;
+  border: 1px solid #ffe680;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.password-requirements .req-title {
+  margin: 0 0 8px 0;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.password-requirements ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.password-requirements .req-error {
+  color: var(--danger-color);
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.password-requirements .req-error:before {
+  content: '✗ ';
+  margin-right: 4px;
+}
+
+@media (max-width: 768px) {
+  .auth-form-wrapper {
+    padding: 30px 20px;
+    max-width: 100%;
+  }
+
+  .auth-form-wrapper h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+}

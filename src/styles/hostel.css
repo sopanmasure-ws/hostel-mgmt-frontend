@@ -1,0 +1,128 @@
+@import './global.css';
+
+.hostel-list-container {
+  padding-bottom: 40px;
+}
+
+.hostel-list-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.hostel-list-header h2 {
+  font-size: 28px;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+}
+
+.hostel-list-header p {
+  font-size: 16px;
+  color: var(--text-light);
+}
+
+.no-hostels {
+  background-color: var(--white);
+  border-radius: 8px;
+  padding: 60px 40px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.no-hostels p {
+  font-size: 18px;
+  color: var(--text-light);
+}
+
+.hostels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.hostel-card {
+  background-color: var(--white);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.hostel-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-8px);
+}
+
+.hostel-image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background-color: var(--light-bg);
+}
+
+.hostel-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hostel-info {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.hostel-info h3 {
+  font-size: 20px;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+}
+
+.hostel-admin {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 8px;
+}
+
+.hostel-description {
+  font-size: 14px;
+  color: var(--text-light);
+  margin-bottom: 15px;
+  flex-grow: 1;
+}
+
+.hostel-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.detail {
+  font-size: 13px;
+  color: var(--text-dark);
+}
+
+.detail strong {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.view-btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .hostel-list-header h2 {
+    font-size: 22px;
+  }
+
+  .hostels-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}

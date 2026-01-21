@@ -1,0 +1,153 @@
+@import './global.css';
+
+.hostel-details-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 30px;
+  padding: 8px 0;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  color: #3a7bc8;
+  transform: translateX(-5px);
+}
+
+.details-content {
+  background-color: var(--white);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  padding: 40px;
+}
+
+.details-image {
+  width: 100%;
+  height: 400px;
+}
+
+.details-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.details-info h1 {
+  font-size: 28px;
+  color: var(--primary-color);
+  margin-bottom: 12px;
+}
+
+.description {
+  font-size: 14px;
+  color: var(--text-light);
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.info-section {
+  margin-bottom: 30px;
+}
+
+.info-section h3 {
+  font-size: 18px;
+  color: var(--text-dark);
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  background-color: var(--light-bg);
+  border-radius: 4px;
+}
+
+.info-item .label {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.info-item .value {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.docs-section {
+  margin-bottom: 30px;
+}
+
+.docs-section h3 {
+  font-size: 18px;
+  color: var(--text-dark);
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.docs-list {
+  list-style: none;
+  padding: 0;
+}
+
+.docs-list li {
+  padding: 10px;
+  background-color: var(--light-bg);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.docs-list li:last-child {
+  margin-bottom: 0;
+}
+
+.doc-icon {
+  color: var(--success-color);
+  font-weight: bold;
+}
+
+.apply-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  margin-top: auto;
+}
+
+@media (max-width: 768px) {
+  .details-content {
+    grid-template-columns: 1fr;
+    padding: 20px;
+    gap: 30px;
+  }
+
+  .details-image {
+    height: 250px;
+  }
+
+  .details-info h1 {
+    font-size: 22px;
+  }
+}
