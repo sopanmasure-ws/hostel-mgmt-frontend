@@ -1,37 +1,30 @@
 import React, { useState } from 'react';
 import { COLLEGE_INFO } from '../utils/data';
+import { DELAYS } from '../constants';
 import Layout from '../components/Layout';
 import '../styles/contact.css';
 
+const INITIAL_FORM_STATE = {
+  name: '',
+  email: '',
+  subject: '',
+  message: '',
+};
+
 const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-  });
+  const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
-    setFormData({
-      name: '',
-      email: '',
-      subject: '',
-      message: '',
-    });
-    setTimeout(() => {
-      setSubmitted(false);
-    }, 3000);
+    setFormData(INITIAL_FORM_STATE);
+    setTimeout(() => setSubmitted(false), DELAYS.MEDIUM);
   };
 
   return (
@@ -50,6 +43,7 @@ const Contact = () => {
               </div>
             )}
             <form onSubmit={handleSubmit} className="contact-form">
+              {/* Name Field */}
               <div className="form-group">
                 <label>Name</label>
                 <input
@@ -63,6 +57,7 @@ const Contact = () => {
                 />
               </div>
 
+              {/* Email Field */}
               <div className="form-group">
                 <label>Email</label>
                 <input
@@ -76,6 +71,7 @@ const Contact = () => {
                 />
               </div>
 
+              {/* Subject Field */}
               <div className="form-group">
                 <label>Subject</label>
                 <input
@@ -89,6 +85,7 @@ const Contact = () => {
                 />
               </div>
 
+              {/* Message Field */}
               <div className="form-group">
                 <label>Message</label>
                 <textarea
@@ -96,40 +93,34 @@ const Contact = () => {
                   value={formData.message}
                   onChange={handleChange}
                   placeholder="Your message"
-                  rows="6"
+                  rows="5"
                   required
                   className="form-input"
                 />
               </div>
 
+              {/* Submit Button */}
               <button type="submit" className="btn btn-primary">
                 Send Message
               </button>
             </form>
           </div>
 
+          {/* College Information */}
           <div className="contact-info-section">
-            <h2>Get in Touch</h2>
-            <div className="contact-info">
+            <h2>Get In Touch</h2>
+            <div className="college-contact-info">
               <div className="info-item">
                 <h3>📍 Address</h3>
-                <p>{COLLEGE_INFO.address}</p>
-              </div>
-              <div className="info-item">
-                <h3>📧 Email</h3>
-                <p>
-                  <a href={`mailto:${COLLEGE_INFO.email}`}>{COLLEGE_INFO.email}</a>
-                </p>
+                <p>{COLLEGE_INFO?.address || 'College Address'}</p>
               </div>
               <div className="info-item">
                 <h3>📞 Phone</h3>
-                <p>
-                  <a href={`tel:${COLLEGE_INFO.phone}`}>{COLLEGE_INFO.phone}</a>
-                </p>
+                <p>{COLLEGE_INFO?.phone || 'College Phone'}</p>
               </div>
               <div className="info-item">
-                <h3>⏰ Working Hours</h3>
-                <p>Monday - Friday: {COLLEGE_INFO.workingHours.weekday}<br />Saturday: {COLLEGE_INFO.workingHours.saturday}</p>
+                <h3>✉️ Email</h3>
+                <p>{COLLEGE_INFO?.email || 'College Email'}</p>
               </div>
             </div>
           </div>

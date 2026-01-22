@@ -1,19 +1,61 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { applicationAPI } from '../services/api';
+import { NotificationContext } from '../components/NotificationContext';
 import Layout from '../components/Layout';
 import '../styles/applications.css';
+import { formatDate } from '../utils/adminHelpers';
 
 const Applications = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
-  const { applications } = useSelector((state) => state.application);
+  const { showNotification } = useContext(NotificationContext);
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/signin');
+      return;
     }
-  }, [isAuthenticated, navigate]);
+
+    // Fetch applications from API using studentPNR
+    const fetchApplications = async () => {
+      try {
+        setLoading(true);
+        
+        if (!user?.pnr) {
+          // If no PNR, show empty state
+          setApplications([]);
+          setLoading(false);
+          return;
+        }
+
+        const response = await applicationAPI.getMyApplications(user.pnr);
+        
+        // Handle different response formats
+        let applicationsData = [];
+        if (Array.isArray(response)) {
+          applicationsData = response;
+        } else if (response?.application && Array.isArray(response.application)) {
+          applicationsData = response.application;
+        } else if (response?.data && Array.isArray(response.data)) {
+          applicationsData = response.data;
+        }
+        
+        setApplications(applicationsData);
+      } catch (error) {
+        console.error('Error fetching applications:', error);
+        showNotification(error.message || 'Failed to load applications', 'error');
+        setApplications([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApplications();
+  }, [isAuthenticated, user?.pnr, navigate, showNotification]);
 
   const getStatusClass = (status) => {
     return `status-badge status-${status}`;
@@ -34,6 +76,16 @@ const Applications = () => {
 
   if (!isAuthenticated) {
     return null;
+  }
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="applications-container">
+          <div className="loading-message">Loading your applications...</div>
+        </div>
+      </Layout>
+    );
   }
 
   return (
@@ -71,10 +123,10 @@ const Applications = () => {
 
                 <div className="app-details">
                   <div className="detail-column">
-                    <h4>Academic Details</h4>
+                    <h4>Student Details</h4>
                     <div className="detail-item">
                       <span className="label">Year:</span>
-                      <span className="value">{application.year}</span>
+                      <span className="value">{application.studentYear}</span>
                     </div>
                     <div className="detail-item">
                       <span className="label">Branch:</span>
@@ -86,11 +138,11 @@ const Applications = () => {
                     </div>
                     <div className="detail-item">
                       <span className="label">DOB:</span>
-                      <span className="value">{application.dob}</span>
+                      <span className="value">{application.dateOfBirth}</span>
                     </div>
                   </div>
 
-                  {application.status === 'accepted' && (
+                  {application.status.toUpperCase() === 'APPROVED' && (
                     <div className="detail-column accepted-details">
                       <h4>Allocation Details</h4>
                       <div className="detail-item">
@@ -100,6 +152,14 @@ const Applications = () => {
                       <div className="detail-item">
                         <span className="label">Floor:</span>
                         <span className="value success">{application.floor}</span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="label">Approved Date:</span>
+                        <span className="value success">{formatDate(application.approvedOn)}</span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="label">Status:</span>
+                        <span className="value success">{application.status.toUpperCase()}</span>
                       </div>
                     </div>
                   )}
@@ -128,14 +188,6 @@ const Applications = () => {
           >
             Back to Dashboard
           </button>
-          {applications.length > 0 && (
-            <button
-              className="btn btn-primary"
-              onClick={() => navigate('/book-hostel')}
-            >
-              Apply to More Hostels
-            </button>
-          )}
         </div>
       </div>
     </Layout>

@@ -4,20 +4,39 @@ import { useSelector } from 'react-redux';
 import Layout from '../components/Layout';
 import '../styles/hostel-details.css';
 
+// Constants
+const ROUTES = {
+  SIGNIN: '/signin',
+  BOOK_HOSTEL: '/book-hostel',
+  APPLICATION_FORM: '/application-form',
+};
+
+const LABELS = {
+  ADMIN: 'Hostel Admin:',
+  SEATS: 'Seats Remained:',
+  RENT: 'Price per Month:',
+  GENDER: 'Gender:',
+  DOCS: 'Required Documents',
+  INFO: 'Hostel Information',
+};
+
 const HostelDetails = () => {
   const navigate = useNavigate();
   const { hostelId } = useParams();
   const { isAuthenticated } = useSelector((state) => state.auth);
   const { selectedHostel, hostels } = useSelector((state) => state.hostel);
 
+  // Get hostel from selectedHostel or find from hostels array
+  const hostel = selectedHostel || hostels?.find((h) => h._id === hostelId);
+
+  // Redirect to signin if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/signin');
+      navigate(ROUTES.SIGNIN);
     }
   }, [isAuthenticated, navigate]);
 
-  const hostel = selectedHostel || hostels.find((h) => h.id === parseInt(hostelId));
-
+  // Loading state when hostel not found
   if (!hostel) {
     return (
       <Layout>
@@ -28,10 +47,18 @@ const HostelDetails = () => {
     );
   }
 
+  const handleApply = () => {
+    navigate(`${ROUTES.APPLICATION_FORM}/${hostel._id || hostel.id}`);
+  };
+
+  const handleBack = () => {
+    navigate(ROUTES.BOOK_HOSTEL);
+  };
+
   return (
     <Layout>
       <div className="hostel-details-container">
-        <button className="back-btn" onClick={() => navigate('/book-hostel')}>
+        <button className="back-btn" onClick={handleBack}>
           ← Back to Hostels
         </button>
 
@@ -44,44 +71,46 @@ const HostelDetails = () => {
             <h1>{hostel.name}</h1>
             <p className="description">{hostel.description}</p>
 
+            {/* Hostel Information Section */}
             <div className="info-section">
-              <h3>Hostel Information</h3>
+              <h3>{LABELS.INFO}</h3>
               <div className="info-grid">
                 <div className="info-item">
-                  <span className="label">Hostel Admin:</span>
-                  <span className="value">{hostel.admin}</span>
+                  <span className="label">{LABELS.ADMIN}</span>
+                  <span className="value">{hostel.warden}</span>
                 </div>
                 <div className="info-item">
-                  <span className="label">Seats Remained:</span>
-                  <span className="value">{hostel.seatsRemained}</span>
+                  <span className="label">{LABELS.SEATS}</span>
+                  <span className="value">{hostel.availableRooms}</span>
                 </div>
                 <div className="info-item">
-                  <span className="label">Price per Month:</span>
-                  <span className="value">₹{hostel.pricePerMonth}</span>
+                  <span className="label">{LABELS.RENT}</span>
+                  <span className="value">₹{hostel.rentPerMonth}</span>
                 </div>
                 <div className="info-item">
-                  <span className="label">Gender:</span>
-                  <span className="value">{hostel.gender.toUpperCase()}</span>
+                  <span className="label">{LABELS.GENDER}</span>
+                  <span className="value">{hostel.gender?.toUpperCase()}</span>
                 </div>
               </div>
             </div>
 
-            <div className="docs-section">
-              <h3>Required Documents</h3>
-              <ul className="docs-list">
-                {hostel.requiredDocs.map((doc, index) => (
-                  <li key={index}>
-                    <span className="doc-icon">✓</span>
-                    {doc}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {/* Required Documents Section */}
+            {hostel?.requiredDocs?.length > 0 && (
+              <div className="docs-section">
+                <h3>{LABELS.DOCS}</h3>
+                <ul className="docs-list">
+                  {hostel.requiredDocs.map((doc, index) => (
+                    <li key={index}>
+                      <span className="doc-icon">✓</span>
+                      {doc}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
-            <button
-              className="btn btn-primary apply-btn"
-              onClick={() => navigate(`/application-form/${hostel.id}`)}
-            >
+            {/* Apply Button */}
+            <button className="btn btn-primary apply-btn" onClick={handleApply}>
               Apply Now
             </button>
           </div>

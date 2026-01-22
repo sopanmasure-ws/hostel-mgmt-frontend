@@ -1,10 +1,26 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { HOSTELS_DATA, SAMPLE_APPLICATIONS } from '../utils/data';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { hostelAPI } from '../services/api';
+import { SAMPLE_APPLICATIONS } from '../utils/data';
+
+// Async thunk to fetch all hostels from API
+export const fetchAllHostels = createAsyncThunk(
+  'hostel/fetchAllHostels',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await hostelAPI.getAllHostels();
+      return Array.isArray(response) ? response : response.hostels || [];
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to fetch hostels');
+    }
+  }
+);
 
 const initialState = {
-  hostels: HOSTELS_DATA,
+  hostels: [],
   selectedHostel: null,
   filteredHostels: [],
+  loading: false,
+  error: null,
   applicationForm: {
     hostelId: null,
     year: '',
@@ -19,7 +35,6 @@ const hostelSlice = createSlice({
   initialState,
   reducers: {
     filterHostelsByGender: (state, action) => {
-        console.log("state", state.hostels);
       state.filteredHostels = state.hostels.filter(
         (hostel) => hostel.gender === action.payload
       );
@@ -44,6 +59,24 @@ const hostelSlice = createSlice({
         branch: '',
       };
     },
+    setHostels: (state, action) => {
+      state.hostels = action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchAllHostels.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllHostels.fulfilled, (state, action) => {
+        state.loading = false;
+        state.hostels = action.payload;
+      })
+      .addCase(fetchAllHostels.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 
@@ -52,5 +85,6 @@ export const {
   selectHostel,
   updateApplicationForm,
   resetApplicationForm,
+  setHostels,
 } = hostelSlice.actions;
 export default hostelSlice.reducer;

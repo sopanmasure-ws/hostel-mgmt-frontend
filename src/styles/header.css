@@ -64,6 +64,36 @@
   font-weight: 500;
 }
 
+.admin-badge {
+  font-size: 14px;
+  color: #667eea;
+  font-weight: 600;
+  padding: 4px 8px;
+  background: #f0f0ff;
+  border-radius: 4px;
+}
+
+.admin-panel-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.admin-panel-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.admin-login-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 700;
+}
+
+.admin-login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
 .logout-btn {
   background-color: var(--danger-color);
   color: var(--white);
@@ -71,6 +101,17 @@
 
 .logout-btn:hover {
   background-color: #b00116;
+}
+
+.student-signin-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 700;
+}
+
+.student-signin-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 @media (max-width: 768px) {

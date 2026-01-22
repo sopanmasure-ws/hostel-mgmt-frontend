@@ -1,70 +1,61 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { tokenService } from '../shared/services/tokenService';
 import Layout from '../components/Layout';
+import { ROUTES, LABELS, FEATURES } from '../constants';
 import '../styles/home.css';
 
 const Home = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useSelector((state) => state.auth);
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (tokenService.isStudentTokenValid()) {
+      navigate(ROUTES.DASHBOARD);
+    } else if (tokenService.isAdminTokenValid()) {
+      navigate(ROUTES.ADMIN_DASHBOARD);
+    }
+  }, [navigate]);
+
   return (
     <Layout>
       <div className="home-container">
+        {/* Hero Section */}
         <div className="hero-section">
           <div className="hero-content">
-            <h1>Hostel Management System</h1>
-            <p>Find and Book Your Perfect Hostel</p>
-            {!isAuthenticated && (
+            <h1>{LABELS.HOME_TITLE}</h1>
+            <p>{LABELS.HOME_SUBTITLE}</p>
+
+            {isAuthenticated ? (
+              <button className="btn btn-primary" onClick={() => navigate(ROUTES.DASHBOARD)}>
+                {LABELS.GO_TO_DASHBOARD}
+              </button>
+            ) : (
               <div className="hero-buttons">
-                <button
-                  className="btn btn-primary"
-                  onClick={() => navigate('/signin')}
-                >
-                  Sign In
+                <button className="btn btn-primary" onClick={() => navigate(ROUTES.SIGNIN)}>
+                  {LABELS.SIGN_IN}
                 </button>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => navigate('/register')}
-                >
-                  Register
+                <button className="btn btn-secondary" onClick={() => navigate(ROUTES.REGISTER)}>
+                  {LABELS.REGISTER}
                 </button>
               </div>
-            )}
-            {isAuthenticated && (
-              <button
-                className="btn btn-primary"
-                onClick={() => navigate('/dashboard')}
-              >
-                Go to Dashboard
-              </button>
             )}
           </div>
         </div>
 
+        {/* Features Section */}
         <div className="features-section">
           <h2>Our Services</h2>
           <div className="features-grid">
-            <div className="feature-card">
-              <div className="feature-icon">🏨</div>
-              <h3>Browse Hostels</h3>
-              <p>Explore available hostels filtered by your preferences</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">📋</div>
-              <h3>Easy Application</h3>
-              <p>Submit hostel applications with just a few clicks</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">✓</div>
-              <h3>Track Status</h3>
-              <p>Monitor your applications in real-time</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">🔒</div>
-              <h3>Secure</h3>
-              <p>Your data is safe and secure with us</p>
-            </div>
+            {FEATURES.map((feature, index) => (
+              <div key={index} className="feature-card">
+                <div className="feature-icon">{feature.icon}</div>
+                <h3>{feature.title}</h3>
+                <p>{feature.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>

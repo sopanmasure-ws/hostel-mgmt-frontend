@@ -2,14 +2,14 @@
 
 // College Information
 export const COLLEGE_INFO = {
-  name: 'Tech College of Engineering',
-  location: 'New Delhi, India',
-  affiliation: 'University of Delhi',
-  established: 2000,
+  name: 'Dr. Babasaheb Ambedkar Technological University',
+  location: 'Lonere,Maharashtra, India',
+  affiliation: 'DBATU',
+  established: 1960,
   copyright: 2026,
   phone: '+91 1234567890',
   email: 'support@hostel.college',
-  address: 'Tech College of Engineering, New Delhi, India',
+  address: 'DBATU Lonere,Mangaon, Maharashtra',
   workingHours: {
     weekday: '9:00 AM - 5:00 PM',
     saturday: '10:00 AM - 2:00 PM',
@@ -47,7 +47,7 @@ export const HOSTELS_DATA = [
     admin: 'Mr. Vikram Patel',
     seatsRemained: 8,
     requiredDocs: ['Aadhaar Card', 'College ID', 'Parent Consent Letter'],
-    description: 'Hostel with high-speed internet and study rooms',
+    description: 'Hostel with high-speed internet and study ',
     pricePerMonth: 3500,
     image: 'https://via.placeholder.com/300x200?text=Tech+Hostel',
   },

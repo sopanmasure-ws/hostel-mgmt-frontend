@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { NotificationProvider } from './components/NotificationContext';
+import { tokenService } from './shared/services/tokenService';
+import { loginSuccess } from './redux/authSlice';
+import { adminLoginSuccess } from './redux/adminAuthSlice';
 
-// Pages
+// Pages - Student
 import Home from './pages/Home';
 import SignIn from './pages/SignIn';
 import Register from './pages/Register';
@@ -15,12 +18,51 @@ import Applications from './pages/Applications';
 import About from './pages/About';
 import Contact from './pages/Contact';
 
+// Pages - Admin
+import AdminLogin from './features/admin/pages/AdminLogin';
+import AdminSignUp from './features/admin/pages/AdminSignUp';
+import AdminDashboard from './features/admin/pages/AdminDashboard';
+import HostelApplications from './features/admin/pages/HostelApplications';
+import HostelInventory from './features/admin/pages/HostelInventory';
+
 function App() {
   const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated: adminIsAuthenticated } = useSelector((state) => state.adminAuth);
+  const dispatch = useDispatch();
 
-  // Protected Route Component
+  // Check tokens on app mount
+  useEffect(() => {
+    // Check student token
+    if (tokenService.isStudentTokenValid()) {
+      const storedUser = tokenService.getStudentUser();
+      if (storedUser) {
+        dispatch(loginSuccess(storedUser));
+      }
+    } else if (tokenService.getStudentToken()) {
+      // Token expired, clear it
+      tokenService.removeStudentToken();
+    }
+
+    // Check admin token
+    if (tokenService.isAdminTokenValid()) {
+      const storedAdmin = tokenService.getAdminUser();
+      if (storedAdmin) {
+        dispatch(adminLoginSuccess(storedAdmin));
+      }
+    } else if (tokenService.getAdminToken()) {
+      // Token expired, clear it
+      tokenService.removeAdminToken();
+    }
+  }, [dispatch]);
+
+  // Protected Route Component for Students
   const ProtectedRoute = ({ element }) => {
     return isAuthenticated ? element : <Navigate to="/signin" />;
+  };
+
+  // Protected Route Component for Admin
+  const AdminProtectedRoute = ({ element }) => {
+    return adminIsAuthenticated ? element : <Navigate to="/admin/login" />;
   };
 
   return (
@@ -34,7 +76,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
 
-          {/* Protected Routes */}
+          {/* Student Protected Routes */}
           <Route
             path="/dashboard"
             element={<ProtectedRoute element={<Dashboard />} />}
@@ -54,6 +96,24 @@ function App() {
           <Route
             path="/applications"
             element={<ProtectedRoute element={<Applications />} />}
+          />
+
+          {/* Admin Public Routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/signup" element={<AdminSignUp />} />
+
+          {/* Admin Protected Routes */}
+          <Route
+            path="/admin/dashboard"
+            element={<AdminProtectedRoute element={<AdminDashboard />} />}
+          />
+          <Route
+            path="/admin/hostel/:hostelId"
+            element={<AdminProtectedRoute element={<HostelApplications />} />}
+          />
+          <Route
+            path="/admin/hostel/:hostelId/inventory"
+            element={<AdminProtectedRoute element={<HostelInventory />} />}
           />
 
           {/* Redirect unknown routes to home */}

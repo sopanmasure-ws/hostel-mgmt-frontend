@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectHostel } from '../redux/hostelSlice';
+import { selectHostel, setHostels } from '../redux/hostelSlice';
 import { NotificationContext } from '../components/NotificationContext';
 import { hostelAPI } from '../services/api';
+import { ROUTES } from '../constants';
 import Layout from '../components/Layout';
 import '../styles/hostel.css';
 
@@ -15,30 +16,29 @@ const BookHostel = () => {
   const [filteredHostels, setFilteredHostels] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Redirect if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/signin');
+      navigate(ROUTES.SIGNIN);
     }
   }, [isAuthenticated, navigate]);
 
+  // Fetch hostels on mount
   useEffect(() => {
-    // Fetch hostels from backend API
     const fetchHostels = async () => {
       try {
         setLoading(true);
         const response = await hostelAPI.getAllHostels();
-        console.log('API response:', response);
-        if (response.hostels) {
-          console.log('Fetched hostels:', response.hostels);
-          // Filter by user's gender
-          if (user?.gender) {
-            console.log('Filtering hostels for gender:', user.gender);
-            const filtered = response.hostels.filter(
-              (h) => h.gender === user.gender || h.gender === 'Co-ed'
-            );
-            setFilteredHostels(filtered);
-            console.log('Filtered hostels:', filtered);
-          }
+        const allHostels = Array.isArray(response) ? response : response.hostels || [];
+
+        dispatch(setHostels(allHostels));
+
+        // Filter by user's gender
+        if (user?.gender) {
+          const filtered = allHostels.filter(
+            (h) => h.gender === user.gender || h.gender === 'Co-ed'
+          );
+          setFilteredHostels(filtered);
         }
       } catch (error) {
         showNotification(error.message || 'Failed to load hostels', 'error');
@@ -50,16 +50,14 @@ const BookHostel = () => {
     if (isAuthenticated && user?.gender) {
       fetchHostels();
     }
-  }, [user, isAuthenticated, showNotification]);
+  }, [user, isAuthenticated, showNotification, dispatch]);
 
   const handleSelectHostel = (hostelId) => {
     dispatch(selectHostel(hostelId));
-    navigate(`/hostel-details/${hostelId}`);
+    navigate(`${ROUTES.HOSTEL_DETAILS}/${hostelId}`);
   };
 
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (!isAuthenticated) return null;
 
   if (loading) {
     return (
@@ -86,37 +84,33 @@ const BookHostel = () => {
         ) : (
           <div className="hostels-grid">
             {filteredHostels.map((hostel) => (
-                  <div key={hostel._id} className="hostel-card">
-                    <div className="hostel-image">
-                      <img src={hostel.image} alt={hostel.name} />
-                    </div>
-                    <div className="hostel-info">
-                      <h3>{hostel.name}</h3>
-                      <p className="hostel-admin">
-                        <strong>Warden:</strong> {hostel.warden}
-                      </p>
-                      <p className="hostel-description">{hostel.description}</p>
-                      <div className="hostel-details">
-                        <span className="detail">
-                          <strong>Available Rooms:</strong> {hostel.availableRooms}
-                        </span>
-                        <span className="detail">
-                          <strong>Price/Month:</strong> ₹{hostel.rentPerMonth}
-                        </span>
-                      </div>
-                      <button
-                        className="btn btn-primary view-btn"
-                        onClick={() => {
-                          dispatch(selectHostel(hostel._id));
-                          navigate(`/hostel-details/${hostel._id}`);
-                        }}
-                      >
-                        View Details
-                      </button>
-                    </div>
+              <div key={hostel._id} className="hostel-card">
+                <div className="hostel-image">
+                  <img src={hostel.image} alt={hostel.name} />
+                </div>
+                <div className="hostel-info">
+                  <h3>{hostel.name}</h3>
+                  <p className="hostel-admin">
+                    <strong>Warden:</strong> {hostel.warden}
+                  </p>
+                  <p className="hostel-description">{hostel.description}</p>
+                  <div className="hostel-details">
+                    <span className="detail">
+                      <strong>Available Rooms:</strong> {hostel.availableRooms}
+                    </span>
+                    <span className="detail">
+                      <strong>Price/Month:</strong> ₹{hostel.rentPerMonth}
+                    </span>
                   </div>
-                ))
-            }
+                  <button
+                    className="btn btn-primary view-btn"
+                    onClick={() => handleSelectHostel(hostel._id)}
+                  >
+                    View Details
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

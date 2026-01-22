@@ -11,11 +11,11 @@ const ApplicationForm = () => {
   const navigate = useNavigate();
   const { hostelId } = useParams();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
-  const { hostels } = useSelector((state) => state.hostel);
+  const { hostels, selectedHostel } = useSelector((state) => state.hostel);
   const { showNotification } = useContext(NotificationContext);
   
   const [formData, setFormData] = useState({
-    hostelId: parseInt(hostelId),
+    hostelId: hostelId || null,
     caste: '',
     dob: '',
     branch: '',
@@ -26,35 +26,65 @@ const ApplicationForm = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [formReady, setFormReady] = useState(false);
 
-  const hostel = hostels.find((h) => h.id === parseInt(hostelId));
+  // Try to find hostel from Redux first, then from params
+  let hostel = null;
+  if (hostelId) {
+    // Try finding by _id first (MongoDB ID)
+    hostel = hostels.find((h) => h._id === hostelId);
+    // If not found, try by numeric id
+    if (!hostel && !isNaN(hostelId)) {
+      hostel = hostels.find((h) => h.id === parseInt(hostelId));
+    }
+  } else if (selectedHostel) {
+    hostel = selectedHostel;
+  }
 
   useEffect(() => {
+    // Check authentication
     if (!isAuthenticated) {
+      showNotification('Please sign in first', 'error');
       navigate('/signin');
       return;
     }
 
-    // Check if user already has an application
+    // Check if hostel exists
+    if (!hostel) {
+      showNotification('Hostel not found. Please select a valid hostel.', 'error');
+      setTimeout(() => navigate('/book-hostel'), 1500);
+      return;
+    }
+
+ 
+
+    // Check if user already has an application (if pnr is available)
     const checkExistingApplication = async () => {
       try {
-        if (user?.pnr) {
-          const response = await applicationAPI.getApplicationsByPNR(user.pnr);
-          if (response.data && response.data.length > 0) {
-            showNotification('You can only apply for one hostel. You already have an active application.', 'error');
-            setTimeout(() => navigate('/applications'), 2000);
-          }
+        if (!user?.pnr) {
+          // If no PNR, skip existing application check
+          setFormReady(true);
+          return;
         }
+        
+        const response = await applicationAPI.getApplicationsByPNR(user.pnr);
+        if (response?.application && response.application.length > 0) {
+          showNotification('You can only apply for one hostel. You already have an active application.', 'error');
+          setTimeout(() => navigate('/applications'), 2000);
+          return;
+        }
+        setFormReady(true);
       } catch (error) {
         // If error (like no applications found), continue
-        console.log('No existing applications found');
+        console.log('No existing applications found or PNR not available');
+        setFormReady(true);
       } finally {
         setChecking(false);
       }
     };
 
     checkExistingApplication();
-  }, [isAuthenticated, navigate, showNotification, user]);
+  }, [isAuthenticated, navigate, showNotification, user, hostel]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -110,17 +140,38 @@ const ApplicationForm = () => {
       return;
     }
 
-    // Submit application with FormData
+    // Convert files to base64 strings
     setLoading(true);
-    const fd = new FormData();
-    fd.append('hostelId', formData.hostelId);
-    fd.append('branch', formData.branch);
-    fd.append('caste', formData.caste);
-    fd.append('dateOfBirth', formData.dob);
-    fd.append('aadharCard', formData.aadharCard);
-    fd.append('admissionReceipt', formData.admissionReceipt);
+    const fileToBase64 = (file) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve(reader.result);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    };
 
-    applicationAPI.submitApplication(fd)
+    // Convert both files and submit
+    Promise.all([
+      fileToBase64(formData.aadharCard),
+      fileToBase64(formData.admissionReceipt),
+    ])
+      .then(([aadharCardBase64, admissionReceiptBase64]) => {
+        const applicationData = {
+          hostelId: formData.hostelId,
+          userId: user.id,
+          studentPNR: user?.pnr || '',
+          branch: formData.branch,
+          caste: formData.caste,
+          dateOfBirth: formData.dob,
+          aadharCard: aadharCardBase64,
+          admissionReceipt: admissionReceiptBase64,
+        };
+
+        return applicationAPI.submitApplication(applicationData);
+      })
       .then((response) => {
         if (response.success || response._id) {
           const successMsg = `✅ Application submitted successfully for ${hostel?.name}!`;
@@ -128,7 +179,7 @@ const ApplicationForm = () => {
           showNotification(successMsg, 'success');
           setTimeout(() => {
             navigate('/applications');
-          }, 2000);
+          }, 1000);
         }
       })
       .catch((err) => {
@@ -139,12 +190,38 @@ const ApplicationForm = () => {
       .finally(() => setLoading(false));
   };
 
-  if (!isAuthenticated || checking) {
+  if (!isAuthenticated) {
     return null;
   }
 
+  if (checking) {
+    return (
+      <Layout>
+        <div className="application-form-container">
+          <div className="loading-message">Loading hostel information...</div>
+        </div>
+      </Layout>
+    );
+  }
+
   if (!hostel) {
-    return null;
+    return (
+      <Layout>
+        <div className="application-form-container">
+          <div className="error-message">Hostel not found. Redirecting...</div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!formReady) {
+    return (
+      <Layout>
+        <div className="application-form-container">
+          <div className="loading-message">Checking your application status...</div>
+        </div>
+      </Layout>
+    );
   }
 
   return (
