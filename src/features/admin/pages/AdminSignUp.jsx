@@ -76,7 +76,6 @@ const AdminSignUp = () => {
       return;
     }
 
-    // Call register API
     setLoading(true);
     adminAuthAPI
       .register({

@@ -1,10 +1,6 @@
 import { API_CONFIG } from '../constants';
 
 const API_BASE_URL = API_CONFIG.BASE_URL;
-
-/**
- * Helper function to make API calls with error handling
- */
 const apiFetch = async (endpoint, options = {}) => {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
@@ -17,19 +13,11 @@ const apiFetch = async (endpoint, options = {}) => {
 
   return await response.json();
 };
-
-/**
- * Helper to prepare POST/PUT request options
- */
 const createRequestOptions = (method = 'POST', data) => ({
   method,
   headers: API_CONFIG.HEADERS,
   body: JSON.stringify(data),
 });
-
-// ========================
-// Auth APIs
-// ========================
 export const authAPI = {
   register: async (userData) => {
     return await apiFetch('/auth/register', createRequestOptions('POST', userData));
@@ -43,10 +31,6 @@ export const authAPI = {
     return await apiFetch('/auth/me');
   },
 };
-
-// ========================
-// Hostel APIs
-// ========================
 export const hostelAPI = {
   getAllHostels: async () => {
     return await apiFetch('/hostels');
@@ -68,10 +52,6 @@ export const hostelAPI = {
     return await apiFetch(`/hostels/${id}`, { method: 'DELETE' });
   },
 };
-
-// ========================
-// Application APIs
-// ========================
 export const applicationAPI = {
   submitApplication: async (applicationData) => {
     const response = await fetch(`${API_BASE_URL}/applications/`, {
@@ -116,10 +96,6 @@ export const applicationAPI = {
     return await apiFetch(`/applications/${pnr}`);
   },
 };
-
-// ========================
-// Admin Auth APIs
-// ========================
 export const adminAuthAPI = {
   register: async (adminData) => {
     return await apiFetch('/admin/register', createRequestOptions('POST', adminData));
@@ -134,9 +110,6 @@ export const adminAuthAPI = {
   },
 };
 
-// ========================
-// Admin Hostel APIs
-// ========================
 export const adminHostelAPI = {
   getAdminHostels: async (adminId) => {
     return await apiFetch(`/admin/${adminId}/hostels`);
@@ -151,9 +124,6 @@ export const adminHostelAPI = {
   },
 };
 
-// ========================
-// Admin Application APIs
-// ========================
 export const adminApplicationAPI = {
   getApplicationsByHostel: async (hostelId, status = null) => {
     const endpoint = status
@@ -162,30 +132,15 @@ export const adminApplicationAPI = {
     return await apiFetch(endpoint);
   },
 
-  getPendingApplications: async (hostelId) => {
-    return await apiFetch(`/admin/hostels/${hostelId}/applications?status=PENDING`);
+  getApplicationsByStatus: async (hostelId,status = null) => {
+    return await apiFetch(`/admin/hostels/${hostelId}/applications?status=${status}`);
   },
 
-  getApprovedApplications: async (hostelId) => {
-    return await apiFetch(`/admin/hostels/${hostelId}/applications?status=APPROVED`);
-  },
-
-  getRejectedApplications: async (hostelId) => {
-    return await apiFetch(`/admin/hostels/${hostelId}/applications?status=REJECTED`);
-  },
-
-  acceptApplication: async (applicationId, roomData) => {
-    return await apiFetch(`/admin/applications/${applicationId}/accept`, createRequestOptions('PUT', roomData));
-  },
-
-  rejectApplication: async (applicationId, rejectionData) => {
-    return await apiFetch(`/admin/applications/${applicationId}/reject`, createRequestOptions('PUT', rejectionData));
+  changeApplicationStatus: async (applicationId, roomData, status) => {
+    return await apiFetch(`/admin/applications/${applicationId}/${status}`, createRequestOptions('PUT', roomData));
   },
 };
 
-// ========================
-// Admin Room/Inventory APIs
-// ========================
 export const adminRoomAPI = {
   getInventory: async (hostelId, filters = {}) => {
     let endpoint = `/admin/hostels/${hostelId}/inventory`;

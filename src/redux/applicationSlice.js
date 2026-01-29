@@ -11,13 +11,12 @@ const applicationSlice = createSlice({
   initialState,
   reducers: {
     submitApplication: (state, action) => {
-      // Check if user already has an application
       const userHasApplication = state.applications.some(
-        (app) => app.userId === action.payload.userId
+        (app) => app.userId === action.payload.userId && app.status == 'APPROVED'
       );
       
       if (userHasApplication) {
-        return; // Don't add duplicate application
+        return; 
       }
 
       const newApplication = {

@@ -1,13 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  adminHostels: [], // Hostels managed by the logged-in admin
+  adminHostels: [], 
   currentHostel: null,
-  applications: [], // Applications for current hostel
-  rooms: [], // Rooms for current hostel
+  applications: [], 
+  rooms: [], 
   filters: {
     floor: null,
-    roomStatus: null, // 'filled', 'empty', 'damaged'
+    roomStatus: null,
   },
   loading: false,
   error: null,
@@ -17,7 +17,6 @@ const adminSlice = createSlice({
   name: 'admin',
   initialState,
   reducers: {
-    // Hostel management
     setAdminHostels: (state, action) => {
       state.adminHostels = action.payload;
       state.error = null;
@@ -27,7 +26,6 @@ const adminSlice = createSlice({
       state.currentHostel = action.payload;
     },
 
-    // Application management
     setApplications: (state, action) => {
       state.applications = action.payload;
     },
@@ -51,7 +49,6 @@ const adminSlice = createSlice({
       }
     },
 
-    // Room management
     setRooms: (state, action) => {
       state.rooms = action.payload;
     },
@@ -60,7 +57,7 @@ const adminSlice = createSlice({
       const { roomId, status, studentId, studentName } = action.payload;
       const room = state.rooms.find((r) => r.id === roomId);
       if (room) {
-        room.status = status; // 'available', 'filled', 'damaged'
+        room.status = status;
         if (status === 'filled') {
           room.assignedStudent = {
             id: studentId,

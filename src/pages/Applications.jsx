@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { applicationAPI } from '../services/api';
@@ -10,7 +10,9 @@ import { formatDate } from '../utils/adminHelpers';
 const Applications = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { hostels } = useSelector((state) => state.hostel);
   const { showNotification } = useContext(NotificationContext);
+
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,21 +22,17 @@ const Applications = () => {
       return;
     }
 
-    // Fetch applications from API using studentPNR
     const fetchApplications = async () => {
       try {
         setLoading(true);
-        
+
         if (!user?.pnr) {
-          // If no PNR, show empty state
           setApplications([]);
-          setLoading(false);
           return;
         }
 
         const response = await applicationAPI.getMyApplications(user.pnr);
-        
-        // Handle different response formats
+
         let applicationsData = [];
         if (Array.isArray(response)) {
           applicationsData = response;
@@ -43,10 +41,10 @@ const Applications = () => {
         } else if (response?.data && Array.isArray(response.data)) {
           applicationsData = response.data;
         }
-        
+
         setApplications(applicationsData);
       } catch (error) {
-        console.error('Error fetching applications:', error);
+        console.error(error);
         showNotification(error.message || 'Failed to load applications', 'error');
         setApplications([]);
       } finally {
@@ -57,26 +55,30 @@ const Applications = () => {
     fetchApplications();
   }, [isAuthenticated, user?.pnr, navigate, showNotification]);
 
-  const getStatusClass = (status) => {
-    return `status-badge status-${status}`;
-  };
+  console.log('Hostels in map computation:', hostels);
+  const hostelMap = useMemo(() => {
+    const map = {};
+    hostels?.forEach((hostel) => {
+      map[hostel._id] = hostel;
+    });
+    return map;
+  }, [hostels]);
+  const statusConfig = useMemo(
+    () => ({
+      getStatusClass: (status) => `status-badge status-${status}`,
+      getStatusIcon: (status) => {
+        const icons = {
+          pending: '⏳',
+          approved: '✓',
+          rejected: '✗',
+        };
+        return icons[status] || '';
+      },
+    }),
+    []
+  );
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'pending':
-        return '⏳';
-      case 'accepted':
-        return '✓';
-      case 'rejected':
-        return '✗';
-      default:
-        return '';
-    }
-  };
-
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (!isAuthenticated) return null;
 
   if (loading) {
     return (
@@ -108,76 +110,97 @@ const Applications = () => {
           </div>
         ) : (
           <div className="applications-list">
-            {applications.map((application) => (
-              <div key={application.id} className="application-card">
-                <div className="app-header">
-                  <div>
-                    <h3>{application.hostelName}</h3>
-                    <p className="app-date">Applied on: {application.appliedDate}</p>
+            {applications.map((application) => {
+              const hostel = hostelMap[application?.hostelId];
+
+              return (
+                <div key={application.id} className="application-card">
+                  <div className="app-header">
+                    <div>
+                      <h3>{hostel?.name || 'Hostel'}</h3>
+                      <p className="app-date">
+                        Applied on: {formatDate(application.appliedOn)}
+                      </p>
+                    </div>
+
+                    <div className={statusConfig.getStatusClass(application.status)}>
+                      <span className="status-icon">
+                        {statusConfig.getStatusIcon(application.status)}
+                      </span>
+                      <span className="status-text">
+                        {application.status.toUpperCase()}
+                      </span>
+                    </div>
                   </div>
-                  <div className={getStatusClass(application.status)}>
-                    <span className="status-icon">{getStatusIcon(application.status)}</span>
-                    <span className="status-text">{application.status.toUpperCase()}</span>
+
+                  <div className="app-details">
+                    <div className="detail-column">
+                      <h4>Student & Application Details</h4>
+
+                      <div className="detail-item">
+                        <span className="label">Hostel Name:</span>
+                        <span className="value">{hostel?.name || 'N/A'}</span>
+                      </div>
+
+                      <div className="detail-item">
+                        <span className="label">Year:</span>
+                        <span className="value">{application.studentYear}</span>
+                      </div>
+
+                      <div className="detail-item">
+                        <span className="label">Branch:</span>
+                        <span className="value">{application.branch}</span>
+                      </div>
+
+                      <div className="detail-item">
+                        <span className="label">Caste:</span>
+                        <span className="value">{application.caste}</span>
+                      </div>
+
+                      <div className="detail-item">
+                        <span className="label">DOB:</span>
+                        <span className="value">{application.dateOfBirth}</span>
+                      </div>
+                    </div>
+
+                    {application.status === 'approved' && (
+                      <div className="detail-column accepted-details">
+                        <h4>Allocation Details</h4>
+
+                        <div className="detail-item">
+                          <span className="label">Room Number:</span>
+                          <span className="value success">{application.roomNumber}</span>
+                        </div>
+
+                        <div className="detail-item">
+                          <span className="label">Floor:</span>
+                          <span className="value success">{application.floor}</span>
+                        </div>
+
+                        <div className="detail-item">
+                          <span className="label">Approved Date:</span>
+                          <span className="value success">
+                            {formatDate(application.approvedOn)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {application.status === 'rejected' && (
+                      <div className="detail-column rejected-details">
+                        <h4>Rejection Details</h4>
+                        <div className="detail-item">
+                          <span className="label">Reason:</span>
+                          <span className="value error">
+                            {application.reason || 'No reason provided'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                <div className="app-details">
-                  <div className="detail-column">
-                    <h4>Student Details</h4>
-                    <div className="detail-item">
-                      <span className="label">Year:</span>
-                      <span className="value">{application.studentYear}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="label">Branch:</span>
-                      <span className="value">{application.branch}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="label">Caste:</span>
-                      <span className="value">{application.caste}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="label">DOB:</span>
-                      <span className="value">{application.dateOfBirth}</span>
-                    </div>
-                  </div>
-
-                  {application.status.toUpperCase() === 'APPROVED' && (
-                    <div className="detail-column accepted-details">
-                      <h4>Allocation Details</h4>
-                      <div className="detail-item">
-                        <span className="label">Room Number:</span>
-                        <span className="value success">{application.roomNumber}</span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="label">Floor:</span>
-                        <span className="value success">{application.floor}</span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="label">Approved Date:</span>
-                        <span className="value success">{formatDate(application.approvedOn)}</span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="label">Status:</span>
-                        <span className="value success">{application.status.toUpperCase()}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {application.status === 'rejected' && (
-                    <div className="detail-column rejected-details">
-                      <h4>Rejection Details</h4>
-                      <div className="detail-item">
-                        <span className="label">Reason:</span>
-                        <span className="value error">
-                          {application.reason || 'No reason provided'}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { NotificationContext } from '../components/NotificationContext';
@@ -28,28 +28,27 @@ const ApplicationForm = () => {
   const [checking, setChecking] = useState(true);
   const [formReady, setFormReady] = useState(false);
 
-  // Try to find hostel from Redux first, then from params
-  let hostel = null;
-  if (hostelId) {
-    // Try finding by _id first (MongoDB ID)
-    hostel = hostels.find((h) => h._id === hostelId);
-    // If not found, try by numeric id
-    if (!hostel && !isNaN(hostelId)) {
-      hostel = hostels.find((h) => h.id === parseInt(hostelId));
+  // Memoized: Find hostel only when hostels, hostelId, or selectedHostel changes
+  const hostel = useMemo(() => {
+    let found = null;
+    if (hostelId) {
+      found = hostels.find((h) => h._id === hostelId);
+      if (!found && !isNaN(hostelId)) {
+        found = hostels.find((h) => h.id === parseInt(hostelId));
+      }
+    } else if (selectedHostel) {
+      found = selectedHostel;
     }
-  } else if (selectedHostel) {
-    hostel = selectedHostel;
-  }
+    return found;
+  }, [hostelId, hostels, selectedHostel]);
 
   useEffect(() => {
-    // Check authentication
     if (!isAuthenticated) {
       showNotification('Please sign in first', 'error');
       navigate('/signin');
       return;
     }
 
-    // Check if hostel exists
     if (!hostel) {
       showNotification('Hostel not found. Please select a valid hostel.', 'error');
       setTimeout(() => navigate('/book-hostel'), 1500);
@@ -58,11 +57,9 @@ const ApplicationForm = () => {
 
  
 
-    // Check if user already has an application (if pnr is available)
     const checkExistingApplication = async () => {
       try {
         if (!user?.pnr) {
-          // If no PNR, skip existing application check
           setFormReady(true);
           return;
         }
@@ -75,7 +72,6 @@ const ApplicationForm = () => {
         }
         setFormReady(true);
       } catch (error) {
-        // If error (like no applications found), continue
         console.log('No existing applications found or PNR not available');
         setFormReady(true);
       } finally {

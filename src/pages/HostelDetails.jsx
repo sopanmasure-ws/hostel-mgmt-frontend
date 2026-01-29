@@ -26,17 +26,14 @@ const HostelDetails = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const { selectedHostel, hostels } = useSelector((state) => state.hostel);
 
-  // Get hostel from selectedHostel or find from hostels array
   const hostel = selectedHostel || hostels?.find((h) => h._id === hostelId);
 
-  // Redirect to signin if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
       navigate(ROUTES.SIGNIN);
     }
   }, [isAuthenticated, navigate]);
 
-  // Loading state when hostel not found
   if (!hostel) {
     return (
       <Layout>
@@ -71,7 +68,6 @@ const HostelDetails = () => {
             <h1>{hostel.name}</h1>
             <p className="description">{hostel.description}</p>
 
-            {/* Hostel Information Section */}
             <div className="info-section">
               <h3>{LABELS.INFO}</h3>
               <div className="info-grid">
@@ -94,7 +90,6 @@ const HostelDetails = () => {
               </div>
             </div>
 
-            {/* Required Documents Section */}
             {hostel?.requiredDocs?.length > 0 && (
               <div className="docs-section">
                 <h3>{LABELS.DOCS}</h3>
@@ -109,7 +104,6 @@ const HostelDetails = () => {
               </div>
             )}
 
-            {/* Apply Button */}
             <button className="btn btn-primary apply-btn" onClick={handleApply}>
               Apply Now
             </button>

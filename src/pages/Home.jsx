@@ -10,7 +10,6 @@ const Home = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useSelector((state) => state.auth);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (tokenService.isStudentTokenValid()) {
       navigate(ROUTES.DASHBOARD);
@@ -22,7 +21,6 @@ const Home = () => {
   return (
     <Layout>
       <div className="home-container">
-        {/* Hero Section */}
         <div className="hero-section">
           <div className="hero-content">
             <h1>{LABELS.HOME_TITLE}</h1>
@@ -44,8 +42,6 @@ const Home = () => {
             )}
           </div>
         </div>
-
-        {/* Features Section */}
         <div className="features-section">
           <h2>Our Services</h2>
           <div className="features-grid">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectHostel, setHostels } from '../redux/hostelSlice';
@@ -12,8 +12,8 @@ const BookHostel = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { hostels } = useSelector((state) => state.hostel);
   const { showNotification } = useContext(NotificationContext);
-  const [filteredHostels, setFilteredHostels] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Redirect if not authenticated
@@ -32,25 +32,26 @@ const BookHostel = () => {
         const allHostels = Array.isArray(response) ? response : response.hostels || [];
 
         dispatch(setHostels(allHostels));
-
-        // Filter by user's gender
-        if (user?.gender) {
-          const filtered = allHostels.filter(
-            (h) => h.gender === user.gender || h.gender === 'Co-ed'
-          );
-          setFilteredHostels(filtered);
-        }
       } catch (error) {
         showNotification(error.message || 'Failed to load hostels', 'error');
       } finally {
         setLoading(false);
       }
     };
-
-    if (isAuthenticated && user?.gender) {
+    if (isAuthenticated) {
       fetchHostels();
     }
-  }, [user, isAuthenticated, showNotification, dispatch]);
+  }, [isAuthenticated, showNotification, dispatch]);
+
+  // Memoized: Filter hostels by user's gender only when hostels or user changes
+  const filteredHostels = useMemo(() => {
+    if (!user?.gender || hostels.length === 0) {
+      return [];
+    }
+    return hostels.filter(
+      (h) => h.gender === user.gender || h.gender === 'Co-ed'
+    );
+  }, [hostels, user?.gender]);
 
   const handleSelectHostel = (hostelId) => {
     dispatch(selectHostel(hostelId));

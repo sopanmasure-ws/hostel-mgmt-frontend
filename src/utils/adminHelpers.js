@@ -1,11 +1,4 @@
-// Admin utility functions and helpers
 
-/**
- * Validate admin credentials
- * @param {string} adminId - Admin ID
- * @param {string} password - Admin password
- * @returns {object} Validation result with errors
- */
 export const validateAdminLogin = (adminId, password) => {
   const errors = {};
 
@@ -23,11 +16,6 @@ export const validateAdminLogin = (adminId, password) => {
   };
 };
 
-/**
- * Validate admin registration data
- * @param {object} data - Registration form data
- * @returns {object} Validation result with errors
- */
 export const validateAdminRegistration = (data) => {
   const errors = {};
 
@@ -58,11 +46,6 @@ export const validateAdminRegistration = (data) => {
   };
 };
 
-/**
- * Format room status for display
- * @param {string} status - Room status
- * @returns {object} Formatted status with icon and color
- */
 export const formatRoomStatus = (status) => {
   const statusMap = {
     available: {
@@ -88,11 +71,6 @@ export const formatRoomStatus = (status) => {
   return statusMap[status] || statusMap.available;
 };
 
-/**
- * Format application status for display
- * @param {string} status - Application status
- * @returns {object} Formatted status with color and badge class
- */
 export const formatApplicationStatus = (status) => {
   const statusMap = {
     pending: {
@@ -115,33 +93,17 @@ export const formatApplicationStatus = (status) => {
   return statusMap[status] || statusMap.pending;
 };
 
-/**
- * Calculate hostel occupancy percentage
- * @param {number} filled - Number of filled rooms
- * @param {number} total - Total number of rooms
- * @returns {number} Occupancy percentage
- */
 export const calculateOccupancyPercentage = (filled, total) => {
   if (total === 0) return 0;
   return Math.round((filled / total) * 100);
 };
 
-/**
- * Get occupancy status color
- * @param {number} percentage - Occupancy percentage
- * @returns {string} Color code
- */
 export const getOccupancyColor = (percentage) => {
   if (percentage < 30) return '#4CAF50'; // Low occupancy - Green
   if (percentage < 70) return '#FF9800'; // Medium occupancy - Orange
   return '#F44336'; // High occupancy - Red
 };
 
-/**
- * Format date for display
- * @param {string} dateString - Date string
- * @returns {string} Formatted date
- */
 export const formatDate = (dateString) => {
   const options = {
     year: 'numeric',
@@ -151,11 +113,6 @@ export const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('en-US', options);
 };
 
-/**
- * Group rooms by floor
- * @param {array} rooms - Array of room objects
- * @returns {object} Rooms grouped by floor
- */
 export const groupRoomsByFloor = (rooms) => {
   return rooms.reduce((acc, room) => {
     const floor = room.floor;
@@ -167,12 +124,7 @@ export const groupRoomsByFloor = (rooms) => {
   }, {});
 };
 
-/**
- * Filter rooms by criteria
- * @param {array} rooms - Array of room objects
- * @param {object} filters - Filter criteria
- * @returns {array} Filtered rooms
- */
+
 export const filterRooms = (rooms, filters) => {
   let filtered = [...rooms];
 
@@ -187,11 +139,7 @@ export const filterRooms = (rooms, filters) => {
   return filtered;
 };
 
-/**
- * Generate room statistics
- * @param {array} rooms - Array of room objects
- * @returns {object} Room statistics
- */
+
 export const generateRoomStats = (rooms) => {
   return {
     total: rooms.length,
@@ -205,11 +153,6 @@ export const generateRoomStats = (rooms) => {
   };
 };
 
-/**
- * Generate hostel statistics
- * @param {array} hostels - Array of hostel objects
- * @returns {object} Hostel statistics
- */
 export const generateHostelStats = (hostels) => {
   return {
     totalHostels: hostels.length,
@@ -223,12 +166,6 @@ export const generateHostelStats = (hostels) => {
   };
 };
 
-/**
- * Sort applications by date
- * @param {array} applications - Array of application objects
- * @param {string} order - 'asc' or 'desc'
- * @returns {array} Sorted applications
- */
 export const sortApplicationsByDate = (applications, order = 'desc') => {
   return [...applications].sort((a, b) => {
     const dateA = new Date(a.appliedDate);
@@ -237,40 +174,24 @@ export const sortApplicationsByDate = (applications, order = 'desc') => {
   });
 };
 
-/**
- * Check if room is available
- * @param {object} room - Room object
- * @returns {boolean} True if room is available
- */
+
 export const isRoomAvailable = (room) => {
   return room.status === 'available' && room.assignedStudents.length < room.capacity;
 };
 
-/**
- * Get room occupancy details
- * @param {object} room - Room object
- * @returns {string} Occupancy description
- */
+
 export const getRoomOccupancyDetails = (room) => {
   const { capacity, assignedStudents } = room;
   const occupied = assignedStudents.length;
   return `${occupied}/${capacity} occupied`;
 };
 
-/**
- * Format application summary
- * @param {object} application - Application object
- * @returns {string} Application summary
- */
+
 export const formatApplicationSummary = (application) => {
   return `${application.studentName} - ${application.status.toUpperCase()} (PNR: ${application.pnr})`;
 };
 
-/**
- * Export data as CSV
- * @param {array} data - Array of objects to export
- * @param {string} filename - Output filename
- */
+
 export const exportToCSV = (data, filename) => {
   if (!data || data.length === 0) return;
 
@@ -294,6 +215,7 @@ export const exportToCSV = (data, filename) => {
   a.click();
   window.URL.revokeObjectURL(url);
 };
+
 
 export default {
   validateAdminLogin,

@@ -31,7 +31,6 @@ const Register = () => {
   const dispatch = useDispatch();
   const { showNotification } = useContext(NotificationContext);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (tokenService.isStudentTokenValid() || tokenService.isAdminTokenValid()) {
       navigate(ROUTES.DASHBOARD);
@@ -42,7 +41,6 @@ const Register = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Validate password as user types
     if (name === 'password' && value.length > 0) {
       const errors = getPasswordErrorMessage(value);
       setPasswordErrors(errors);
@@ -117,7 +115,7 @@ const Register = () => {
         dispatch(loginSuccess(userData));
 
         showNotification(
-          `✅ ${LABELS.SUCCESS}! ${formData.name}, welcome!`,
+          `${LABELS.SUCCESS}! ${formData.name}, welcome!`,
           'success'
         );
         setTimeout(() => navigate(ROUTES.DASHBOARD), DELAYS.REDIRECT);
@@ -143,7 +141,6 @@ const Register = () => {
           {error && <div className="error-message">{error}</div>}
 
           <form onSubmit={handleRegister} className="auth-form">
-            {/* Full Name */}
             <div className="form-group">
               <label>Full Name</label>
               <input
@@ -156,7 +153,6 @@ const Register = () => {
               />
             </div>
 
-            {/* PNR Number */}
             <div className="form-group">
               <label>PNR Number</label>
               <input
@@ -169,7 +165,6 @@ const Register = () => {
               />
             </div>
 
-            {/* Email */}
             <div className="form-group">
               <label>Email</label>
               <input
@@ -182,7 +177,6 @@ const Register = () => {
               />
             </div>
 
-            {/* Gender */}
             <div className="form-group">
               <label>{LABELS.GENDER}</label>
               <select
@@ -200,7 +194,6 @@ const Register = () => {
               </select>
             </div>
 
-            {/* College Year */}
             <div className="form-group">
               <label>College Year</label>
               <select
@@ -218,7 +211,6 @@ const Register = () => {
               </select>
             </div>
 
-            {/* Password */}
             <div className="form-group">
               <label>{LABELS.PASSWORD}</label>
               <input
@@ -243,7 +235,6 @@ const Register = () => {
               )}
             </div>
 
-            {/* Confirm Password */}
             <div className="form-group">
               <label>{LABELS.CONFIRM_PASSWORD}</label>
               <input
@@ -256,7 +247,6 @@ const Register = () => {
               />
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               className="btn btn-primary"

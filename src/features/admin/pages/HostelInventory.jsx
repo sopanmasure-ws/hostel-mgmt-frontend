@@ -31,7 +31,6 @@ const HostelInventory = () => {
     setLoading(true);
     const cacheKey = `rooms_hostel_${hostelId}`;
     
-    // Try cache first
     const cachedRooms = cacheService.get(cacheKey, 'local');
     if (cachedRooms && cachedRooms.length > 0) {
       dispatch(setRooms(cachedRooms));
@@ -39,11 +38,9 @@ const HostelInventory = () => {
       return;
     }
 
-    // Fetch from API
     adminRoomAPI
       .getRoomsByHostel(hostelId)
       .then((response) => {
-        // Handle different response formats
         let roomsData = [];
         if (Array.isArray(response)) {
           roomsData = response;
@@ -55,7 +52,6 @@ const HostelInventory = () => {
           roomsData = response.data;
         }
         dispatch(setRooms(roomsData));
-        // Cache for 5 minutes
         cacheService.set(cacheKey, roomsData, 5 * 60 * 1000, 'local');
       })
       .catch((err) => {

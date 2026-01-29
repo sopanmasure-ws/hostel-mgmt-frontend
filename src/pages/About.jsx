@@ -3,7 +3,6 @@ import { COLLEGE_INFO } from '../utils/data';
 import Layout from '../components/Layout';
 import '../styles/about.css';
 
-// About page content constants
 const ABOUT_CONTENT = {
   MISSION:
     'To provide a seamless and transparent hostel booking experience for college students. We aim to connect students with suitable hostels that meet their needs and preferences, making the accommodation process hassle-free and efficient.',
@@ -44,13 +43,12 @@ const About = () => {
         </div>
 
         <div className="about-content">
-          {/* Mission Section */}
+          
           <section className="about-section">
             <h2>Our Mission</h2>
             <p>{ABOUT_CONTENT.MISSION}</p>
           </section>
 
-          {/* Services Section */}
           <section className="about-section">
             <h2>What We Offer</h2>
             <ul>
@@ -60,7 +58,6 @@ const About = () => {
             </ul>
           </section>
 
-          {/* Why Choose Us Section */}
           <section className="about-section">
             <h2>Why Choose Us?</h2>
             <div className="reasons-grid">
@@ -73,7 +70,6 @@ const About = () => {
             </div>
           </section>
 
-          {/* College Information Section */}
           <section className="about-section">
             <h2>College Information</h2>
             <div className="college-info">

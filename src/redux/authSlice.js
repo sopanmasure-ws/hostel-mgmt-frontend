@@ -5,14 +5,13 @@ const initialState = {
   isAuthenticated: false,
   loading: false,
   error: null,
-  registeredUsers: [], // Store all registered users
+  registeredUsers: [],
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    // Register
     registerSuccess: (state, action) => {
       const newUser = {
         id: Date.now(),
@@ -25,7 +24,6 @@ const authSlice = createSlice({
       state.error = action.payload;
     },
 
-    // Login
     loginSuccess: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
@@ -36,7 +34,6 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
     },
 
-    // Logout
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
@@ -47,7 +44,6 @@ const authSlice = createSlice({
       state.error = null;
     },
 
-    // Get all registered users (helper)
     getRegisteredUsers: (state) => {
       return state.registeredUsers;
     },

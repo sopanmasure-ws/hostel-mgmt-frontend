@@ -65,7 +65,7 @@ const SignIn = () => {
         // Update Redux
         dispatch(loginSuccess(userData));
         
-        showNotification(`✅ ${LABELS.WELCOME}, ${response.user?.name}!`, 'success');
+        showNotification(`${LABELS.WELCOME}, ${response.user?.name}!`, 'success');
         setTimeout(() => navigate(ROUTES.DASHBOARD), DELAYS.REDIRECT);
       }
     } catch (err) {

@@ -1,20 +1,16 @@
-// Admin Constants and Configuration
 
-// Room Status Options
 export const ROOM_STATUSES = {
   AVAILABLE: 'available',
   FILLED: 'filled',
   DAMAGED: 'damaged',
 };
 
-// Application Status Options
 export const APPLICATION_STATUSES = {
   PENDING: 'pending',
   ACCEPTED: 'accepted',
   REJECTED: 'rejected',
 };
 
-// Status Labels for Display
 export const STATUS_LABELS = {
   [ROOM_STATUSES.AVAILABLE]: 'Available',
   [ROOM_STATUSES.FILLED]: 'Filled',
@@ -24,7 +20,6 @@ export const STATUS_LABELS = {
   [APPLICATION_STATUSES.REJECTED]: 'Rejected',
 };
 
-// Status Colors
 export const STATUS_COLORS = {
   [ROOM_STATUSES.AVAILABLE]: '#4CAF50',
   [ROOM_STATUSES.FILLED]: '#FF9800',
@@ -34,7 +29,6 @@ export const STATUS_COLORS = {
   [APPLICATION_STATUSES.REJECTED]: '#F44336',
 };
 
-// Status Icons
 export const STATUS_ICONS = {
   [ROOM_STATUSES.AVAILABLE]: '✓',
   [ROOM_STATUSES.FILLED]: '👥',
@@ -44,26 +38,20 @@ export const STATUS_ICONS = {
   [APPLICATION_STATUSES.REJECTED]: '✗',
 };
 
-// Student Genders
 export const GENDERS = {
   MALE: 'Male',
   FEMALE: 'Female',
   OTHER: 'Other',
 };
 
-// Academic Years
 export const ACADEMIC_YEARS = ['1st', '2nd', '3rd', '4th'];
 
-// Maximum Occupancy per Room
 export const DEFAULT_ROOM_CAPACITY = 2;
 
-// Floor Range
 export const DEFAULT_FLOOR_RANGE = [1, 2, 3, 4, 5];
 
-// Pagination
 export const ITEMS_PER_PAGE = 10;
 
-// Common Floor Numbers
 export const FLOOR_NUMBERS = {
   GROUND: 'Ground',
   FIRST: '1',
@@ -73,10 +61,8 @@ export const FLOOR_NUMBERS = {
   FIFTH: '5',
 };
 
-// Room Number Patterns (Example for validation)
 export const ROOM_NUMBER_PATTERN = /^[1-9]\d{0,2}$/; // e.g., 1, 101, 201, 1001
 
-// Application Filter Options
 export const APPLICATION_FILTERS = [
   { value: 'all', label: 'All Applications' },
   { value: APPLICATION_STATUSES.PENDING, label: 'Pending' },
@@ -84,7 +70,6 @@ export const APPLICATION_FILTERS = [
   { value: APPLICATION_STATUSES.REJECTED, label: 'Rejected' },
 ];
 
-// Room Filter Options
 export const ROOM_FILTERS = [
   { value: 'all', label: 'All Rooms' },
   { value: ROOM_STATUSES.AVAILABLE, label: 'Available' },
@@ -92,7 +77,6 @@ export const ROOM_FILTERS = [
   { value: ROOM_STATUSES.DAMAGED, label: 'Damaged' },
 ];
 
-// Validation Rules
 export const VALIDATION_RULES = {
   ADMIN_ID_MIN_LENGTH: 3,
   ADMIN_ID_MAX_LENGTH: 20,
@@ -103,7 +87,6 @@ export const VALIDATION_RULES = {
   ROOM_NUMBER_MAX: 999,
 };
 
-// Error Messages
 export const ERROR_MESSAGES = {
   ADMIN_ID_REQUIRED: 'Admin ID is required',
   ADMIN_ID_MIN_LENGTH: `Admin ID must be at least ${VALIDATION_RULES.ADMIN_ID_MIN_LENGTH} characters`,
@@ -121,7 +104,6 @@ export const ERROR_MESSAGES = {
   REJECTION_REASON_MIN_LENGTH: 'Rejection reason must be at least 10 characters',
 };
 
-// Success Messages
 export const SUCCESS_MESSAGES = {
   LOGIN_SUCCESS: 'Login successful',
   SIGNUP_SUCCESS: 'Account created successfully',
@@ -132,7 +114,6 @@ export const SUCCESS_MESSAGES = {
   HOSTEL_UPDATED: 'Hostel information updated successfully',
 };
 
-// API Endpoints (relative paths)
 export const API_ENDPOINTS = {
   ADMIN_LOGIN: '/admin/auth/login',
   ADMIN_SIGNUP: '/admin/auth/register',
@@ -147,7 +128,6 @@ export const API_ENDPOINTS = {
   ADMIN_ROOM_RELEASE: '/admin/rooms/:roomId/release',
 };
 
-// Routes (for navigation)
 export const ADMIN_ROUTES = {
   LOGIN: '/admin/login',
   SIGNUP: '/admin/signup',
@@ -156,7 +136,6 @@ export const ADMIN_ROUTES = {
   INVENTORY: '/admin/hostel/:hostelId/inventory',
 };
 
-// Default Mock Data Configuration
 export const MOCK_CONFIG = {
   DEFAULT_HOSTEL_COUNT: 3,
   DEFAULT_ROOMS_PER_FLOOR: 4,
@@ -164,7 +143,6 @@ export const MOCK_CONFIG = {
   DEFAULT_APPLICATIONS_PER_HOSTEL: 4,
 };
 
-// Chart Colors (for future analytics)
 export const CHART_COLORS = {
   PRIMARY: '#667eea',
   SUCCESS: '#4CAF50',
@@ -174,7 +152,6 @@ export const CHART_COLORS = {
   LIGHT: '#E0E0E0',
 };
 
-// Notification Types
 export const NOTIFICATION_TYPES = {
   SUCCESS: 'success',
   ERROR: 'error',
@@ -182,36 +159,31 @@ export const NOTIFICATION_TYPES = {
   INFO: 'info',
 };
 
-// Notification Duration (in milliseconds)
 export const NOTIFICATION_DURATION = {
   SHORT: 2000,
   MEDIUM: 3000,
   LONG: 5000,
-  PERSISTENT: 0, // Don't auto-dismiss
+  PERSISTENT: 0,
 };
 
-// Date Format Options
 export const DATE_FORMATS = {
   DISPLAY: 'MMM DD, YYYY',
   INPUT: 'YYYY-MM-DD',
   FULL: 'MMMM DD, YYYY HH:mm',
 };
 
-// Occupancy Thresholds (percentages)
 export const OCCUPANCY_THRESHOLDS = {
   LOW: 30,
   MEDIUM: 70,
   HIGH: 100,
 };
 
-// Reports Configuration
 export const REPORTS = {
   OCCUPANCY_REPORT: 'occupancy',
   APPLICATION_REPORT: 'applications',
   ROOM_STATUS_REPORT: 'room_status',
 };
 
-// Export as default object for easy access
 export default {
   ROOM_STATUSES,
   APPLICATION_STATUSES,

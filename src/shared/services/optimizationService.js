@@ -52,10 +52,6 @@ export function memoize(func) {
   };
 }
 
-/**
- * Create a batch processor for API calls
- * Reduces number of API calls by batching requests
- */
 export class BatchProcessor {
   constructor(processFn, batchSize = 10, delayMs = 100) {
     this.processFn = processFn;
@@ -90,11 +86,6 @@ export class BatchProcessor {
   }
 }
 
-/**
- * Lazy load images with IntersectionObserver
- * @param {function} callback - Callback when image is visible
- * @param {object} options - IntersectionObserver options
- */
 export function lazyLoad(callback, options = {}) {
   const defaultOptions = {
     root: null,
@@ -111,11 +102,6 @@ export function lazyLoad(callback, options = {}) {
     });
   }, defaultOptions);
 }
-
-/**
- * Compare two objects for shallow equality
- * Useful for React.memo comparisons
- */
 export function shallowEqual(obj1, obj2) {
   const keys1 = Object.keys(obj1);
   const keys2 = Object.keys(obj2);
@@ -129,9 +115,6 @@ export function shallowEqual(obj1, obj2) {
   return true;
 }
 
-/**
- * Create deep clone of object for Redux operations
- */
 export function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj));
 }

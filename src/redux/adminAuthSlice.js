@@ -5,14 +5,13 @@ const initialState = {
   isAuthenticated: false,
   loading: false,
   error: null,
-  registeredAdmins: [], // Store all registered admins
+  registeredAdmins: [], 
 };
 
 const adminAuthSlice = createSlice({
   name: 'adminAuth',
   initialState,
   reducers: {
-    // Register
     adminRegisterSuccess: (state, action) => {
       const newAdmin = {
         id: Date.now(),
@@ -25,7 +24,7 @@ const adminAuthSlice = createSlice({
       state.error = action.payload;
     },
 
-    // Login
+    
     adminLoginSuccess: (state, action) => {
       state.admin = action.payload;
       state.isAuthenticated = true;
@@ -36,7 +35,6 @@ const adminAuthSlice = createSlice({
       state.isAuthenticated = false;
     },
 
-    // Logout
     adminLogout: (state) => {
       state.admin = null;
       state.isAuthenticated = false;
@@ -47,7 +45,6 @@ const adminAuthSlice = createSlice({
       state.error = null;
     },
 
-    // Get all registered admins (helper)
     getAllAdmins: (state) => {
       return state.registeredAdmins;
     },

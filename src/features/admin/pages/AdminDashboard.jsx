@@ -17,13 +17,11 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if admin is logged in
     if (!adminAuth.isAuthenticated) {
       navigate('/admin/login');
       return;
     }
 
-    // Load admin hostels from cache or API
     setLoading(true);
     const adminId = adminAuth.admin?.adminId;
     
@@ -33,7 +31,6 @@ const AdminDashboard = () => {
       return;
     }
 
-    // Try to get from cache first
     const cacheKey = `admin_hostels_${adminId}`;
     const cachedHostels = cacheService.get(cacheKey, 'local');
     
@@ -43,13 +40,11 @@ const AdminDashboard = () => {
       return;
     }
 
-    // Fetch from API
     adminHostelAPI
       .getAdminHostels(adminId)
       .then((response) => {
         const hostels = Array.isArray(response.data.hostels) ? response.data.hostels : [];
         dispatch(setAdminHostels(hostels));
-        // Cache for 10 minutes
         cacheService.set(cacheKey, hostels, 10 * 60 * 1000, 'local');
       })
       .catch((err) => {

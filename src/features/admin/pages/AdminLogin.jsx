@@ -18,7 +18,6 @@ const AdminLogin = () => {
   const dispatch = useDispatch();
   const { showNotification } = useContext(NotificationContext);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (tokenService.isAdminTokenValid()) {
       navigate('/admin/dashboard');
@@ -29,7 +28,6 @@ const AdminLogin = () => {
     e.preventDefault();
     setError('');
 
-    // Basic validation
     if (!adminId || !password) {
       const msg = 'Please fill in all fields';
       setError(msg);
@@ -37,7 +35,6 @@ const AdminLogin = () => {
       return;
     }
 
-    // Call login API
     setLoading(true);
     adminAuthAPI
       .login({
@@ -55,14 +52,12 @@ const AdminLogin = () => {
 
         dispatch(adminLoginSuccess(admin));
         
-        // Store token and admin data
         if (response.data.admin.token || response.data.token) {
           const token = response.data.admin.token || response.data.token;
           tokenService.setAdminToken(token, response.data.expiryTime);
         }
         tokenService.setAdminUser(admin);
         
-        // Cache admin data
         cacheService.set('adminUser', admin, 30 * 60 * 1000, 'local');
         
         showNotification('Welcome back, Admin!', 'success');

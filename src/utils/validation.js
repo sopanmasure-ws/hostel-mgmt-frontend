@@ -1,8 +1,5 @@
 import { PASSWORD_REQUIREMENTS, PASSWORD_ERRORS, VALIDATION } from '../constants';
 
-/**
- * Validate password against requirements
- */
 export const validatePassword = (password) => {
   return {
     minLength: password.length >= PASSWORD_REQUIREMENTS.MIN_LENGTH,
@@ -12,17 +9,10 @@ export const validatePassword = (password) => {
   };
 };
 
-/**
- * Check if password meets all requirements
- */
 export const isPasswordValid = (password) => {
   const requirements = validatePassword(password);
   return Object.values(requirements).every((req) => req === true);
 };
-
-/**
- * Get detailed password error messages
- */
 export const getPasswordErrorMessage = (password) => {
   const requirements = validatePassword(password);
   const errors = [];
@@ -34,24 +24,13 @@ export const getPasswordErrorMessage = (password) => {
 
   return errors;
 };
-
-/**
- * Validate email format
- */
 export const isEmailValid = (email) => {
   return VALIDATION.EMAIL_PATTERN.test(email);
 };
-
-/**
- * Validate PNR format
- */
 export const isPNRValid = (pnr) => {
   return VALIDATION.PNR_PATTERN.test(pnr);
 };
 
-/**
- * Validate phone number
- */
 export const isPhoneValid = (phone) => {
   return VALIDATION.PHONE_PATTERN.test(phone);
 };

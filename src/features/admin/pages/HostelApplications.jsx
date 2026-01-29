@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { adminApplicationAPI, applicationAPI, adminRoomAPI } from '../../../services/api';
@@ -117,7 +117,7 @@ const HostelApplications = () => {
         floor: selectedRoomObj?.floor || selectedRoomObj?.floorNumber
       };
       
-      await adminApplicationAPI.acceptApplication(selectedApplicationId, roomData);
+      await adminApplicationAPI.changeApplicationStatus(selectedApplicationId, roomData, 'APPROVED');
       showNotification('Application approved successfully', 'success');
       setShowDialog(false);
       fetchApplications();
@@ -132,7 +132,7 @@ const HostelApplications = () => {
       return;
     }
     try {
-      await adminApplicationAPI.rejectApplication(selectedApplicationId, { reason: rejectionReason });
+      await adminApplicationAPI.changeApplicationStatus(selectedApplicationId, { reason: rejectionReason }, 'REJECTED');
       showNotification('Application rejected', 'success');
       setShowDialog(false);
       fetchApplications();
@@ -141,10 +141,13 @@ const HostelApplications = () => {
     }
   };
 
-  const filteredApplications = applications.filter((app) => {
-    if (filter === 'all') return true;
-    return app.status?.toLowerCase() === filter.toLowerCase();
-  });
+  // Memoized: Only recalculate filtered applications when applications or filter changes
+  const filteredApplications = useMemo(() => {
+    return applications.filter((app) => {
+      if (filter === 'all') return true;
+      return app.status?.toLowerCase() === filter.toLowerCase();
+    });
+  }, [applications, filter]);
 
   if (loading) {
     return (

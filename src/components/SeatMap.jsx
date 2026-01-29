@@ -1,27 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import '../styles/seat-map.css';
 
 const SeatMap = ({ rooms, floors }) => {
   const [selectedFloor, setSelectedFloor] = useState(floors[0] || '1');
 
-  const floorRooms = rooms.filter((room) => room.floor === selectedFloor);
+  // Memoized: Only recalculates when rooms or selectedFloor changes
+  const floorRooms = useMemo(() => {
+    return rooms.filter((room) => room.floor === selectedFloor);
+  }, [rooms, selectedFloor]);
+
+  // Memoized: Status color mapping - only created once
+  const statusColors = useMemo(() => ({
+    available: '#4CAF50',
+    filled: '#FF9800',
+    damaged: '#F44336',
+  }), []);
+
+  // Memoized: Status icons mapping - only created once
+  const statusIcons = useMemo(() => ({
+    available: '✓',
+    filled: '👥',
+    damaged: '⚠️',
+  }), []);
 
   const getRoomStatusColor = (status) => {
-    const colors = {
-      available: '#4CAF50',
-      filled: '#FF9800',
-      damaged: '#F44336',
-    };
-    return colors[status] || '#9E9E9E';
+    return statusColors[status] || '#9E9E9E';
   };
 
   const getRoomStatusIcon = (status) => {
-    const icons = {
-      available: '✓',
-      filled: '👥',
-      damaged: '⚠️',
-    };
-    return icons[status] || '?';
+    return statusIcons[status] || '?';
   };
 
   return (

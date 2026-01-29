@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { hostelAPI } from '../services/api';
 import { SAMPLE_APPLICATIONS } from '../utils/data';
 
-// Async thunk to fetch all hostels from API
 export const fetchAllHostels = createAsyncThunk(
   'hostel/fetchAllHostels',
   async (_, { rejectWithValue }) => {
@@ -41,7 +40,7 @@ const hostelSlice = createSlice({
     },
     selectHostel: (state, action) => {
       state.selectedHostel = state.hostels.find(
-        (h) => h.id === action.payload
+        (hostel) => hostel.id === action.payload
       );
     },
     updateApplicationForm: (state, action) => {
