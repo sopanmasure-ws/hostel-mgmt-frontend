@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { COLLEGE_INFO } from '../utils/data';
-import { DELAYS } from '../constants';
-import Layout from '../components/Layout';
+import { COLLEGE_INFO } from '../util/data';
+import { DELAYS } from '../config';
+import Layout from '../layout/Layout';
 import '../styles/contact.css';
 
 const INITIAL_FORM_STATE = {

@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectHostel, setHostels } from '../redux/hostelSlice';
-import { NotificationContext } from '../components/NotificationContext';
-import { hostelAPI } from '../services/api';
-import { ROUTES } from '../constants';
-import Layout from '../components/Layout';
+import { selectHostel, setHostels } from '../store/hostelSlice';
+import { NotificationContext } from '../component/NotificationContext';
+import Pagination from '../component/Pagination';
+import { hostelAPI } from '../lib/api';
+import { ROUTES } from '../config';
+import Layout from '../layout/Layout';
 import '../styles/hostel.css';
 
 const BookHostel = () => {
@@ -15,6 +16,8 @@ const BookHostel = () => {
   const { hostels } = useSelector((state) => state.hostel);
   const { showNotification } = useContext(NotificationContext);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -53,6 +56,21 @@ const BookHostel = () => {
     );
   }, [hostels, user?.gender]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [user?.gender, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredHostels.length / pageSize));
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+    if (page < 1) setPage(1);
+  }, [page, totalPages]);
+
+  const pagedHostels = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredHostels.slice(start, start + pageSize);
+  }, [filteredHostels, page, pageSize]);
+
   const handleSelectHostel = (hostelId) => {
     dispatch(selectHostel(hostelId));
     navigate(`${ROUTES.HOSTEL_DETAILS}/${hostelId}`);
@@ -83,8 +101,9 @@ const BookHostel = () => {
             <p>No hostels available for your gender at the moment.</p>
           </div>
         ) : (
-          <div className="hostels-grid">
-            {filteredHostels.map((hostel) => (
+          <>
+            <div className="hostels-grid">
+              {pagedHostels.map((hostel) => (
               <div key={hostel._id} className="hostel-card">
                 <div className="hostel-image">
                   <img src={hostel.image} alt={hostel.name} />
@@ -112,7 +131,19 @@ const BookHostel = () => {
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+
+            {filteredHostels.length > pageSize && (
+              <Pagination
+                totalItems={filteredHostels.length}
+                currentPage={page}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+                pageSizeOptions={[6, 12, 24]}
+              />
+            )}
+          </>
         )}
       </div>
     </Layout>

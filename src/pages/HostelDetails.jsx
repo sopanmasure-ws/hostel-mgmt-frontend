@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import Layout from '../components/Layout';
+import Layout from '../layout/Layout';
 import '../styles/hostel-details.css';
 
 // Constants

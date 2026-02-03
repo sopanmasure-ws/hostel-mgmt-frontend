@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { tokenService } from '../shared/services/tokenService';
-import Layout from '../components/Layout';
-import { ROUTES, LABELS, FEATURES } from '../constants';
+import { tokenService } from '../lib/services/tokenService';
+import Layout from '../layout/Layout';
+import { ROUTES, LABELS, FEATURES } from '../config';
 import '../styles/home.css';
 
 const Home = () => {

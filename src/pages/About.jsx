@@ -1,6 +1,6 @@
 import React from 'react';
-import { COLLEGE_INFO } from '../utils/data';
-import Layout from '../components/Layout';
+import { COLLEGE_INFO } from '../util/data';
+import Layout from '../layout/Layout';
 import '../styles/about.css';
 
 const ABOUT_CONTENT = {

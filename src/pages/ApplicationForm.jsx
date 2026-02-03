@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { NotificationContext } from '../components/NotificationContext';
-import { BRANCHES, CASTE_CATEGORIES } from '../utils/data';
-import { applicationAPI } from '../services/api';
-import Layout from '../components/Layout';
+import { NotificationContext } from '../component/NotificationContext';
+import { BRANCHES, CASTE_CATEGORIES } from '../util/data';
+import { applicationAPI } from '../lib/api';
+import Layout from '../layout/Layout';
 import '../styles/application-form.css';
 
 const ApplicationForm = () => {
@@ -64,8 +64,8 @@ const ApplicationForm = () => {
           return;
         }
         
-        const response = await applicationAPI.getApplicationsByPNR(user.pnr);
-        if (response?.application && response.application.length > 0) {
+        const app = await applicationAPI.getApplicationsByPNR(user.pnr);
+        if (app && app._id) {
           showNotification('You can only apply for one hostel. You already have an active application.', 'error');
           setTimeout(() => navigate('/applications'), 2000);
           return;

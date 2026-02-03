@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { COLLEGE_INFO } from '../utils/data';
-import Layout from '../components/Layout';
+import { COLLEGE_INFO } from '../util/data';
+import Layout from '../layout/Layout';
 import '../styles/dashboard.css';
 
 const Dashboard = () => {

@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { applicationAPI } from '../services/api';
-import { NotificationContext } from '../components/NotificationContext';
-import Layout from '../components/Layout';
+import { applicationAPI } from '../lib/api';
+import { NotificationContext } from '../component/NotificationContext';
+import Layout from '../layout/Layout';
 import '../styles/applications.css';
-import { formatDate } from '../utils/adminHelpers';
+import { formatDate } from '../util/adminHelpers';
 
 const Applications = () => {
   const navigate = useNavigate();
@@ -36,13 +36,13 @@ const Applications = () => {
         let applicationsData = [];
         if (Array.isArray(response)) {
           applicationsData = response;
-        } else if (response?.application && Array.isArray(response.application)) {
+        } else if (response?.application ) {
           applicationsData = response.application;
-        } else if (response?.data && Array.isArray(response.data)) {
+        } else if (response?.data ) {
           applicationsData = response.data;
         }
 
-        setApplications(applicationsData);
+        setApplications([applicationsData]);
       } catch (error) {
         console.error(error);
         showNotification(error.message || 'Failed to load applications', 'error');
@@ -160,6 +160,14 @@ const Applications = () => {
                       <div className="detail-item">
                         <span className="label">DOB:</span>
                         <span className="value">{application.dateOfBirth}</span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="label">Room No:</span>
+                        <span className="value">{application.roomNumber}</span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="label">Floor:</span>
+                        <span className="value">{application.floor}</span>
                       </div>
                     </div>
 

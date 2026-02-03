@@ -1,12 +1,12 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { NotificationContext } from '../components/NotificationContext';
-import { loginSuccess } from '../redux/authSlice';
-import { authAPI } from '../services/api';
-import { tokenService } from '../shared/services/tokenService';
-import { ROUTES, LABELS, DELAYS, ERROR_MESSAGES } from '../constants';
-import Layout from '../components/Layout';
+import { NotificationContext } from '../component/NotificationContext';
+import { loginSuccess } from '../store/authSlice';
+import { authAPI } from '../lib/api';
+import { tokenService } from '../lib/services/tokenService';
+import { ROUTES, LABELS, DELAYS, ERROR_MESSAGES } from '../config';
+import Layout from '../layout/Layout';
 import '../styles/auth.css';
 
 const SignIn = () => {

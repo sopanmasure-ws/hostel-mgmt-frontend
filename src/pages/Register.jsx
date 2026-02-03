@@ -1,14 +1,14 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { NotificationContext } from '../components/NotificationContext';
-import { loginSuccess } from '../redux/authSlice';
-import { isPasswordValid, getPasswordErrorMessage, isEmailValid } from '../utils/validation';
-import { GENDERS, COLLEGE_YEARS } from '../utils/data';
-import { authAPI } from '../services/api';
-import { tokenService } from '../shared/services/tokenService';
-import { ROUTES, LABELS, DELAYS, ERROR_MESSAGES, ACADEMIC_YEARS } from '../constants';
-import Layout from '../components/Layout';
+import { NotificationContext } from '../component/NotificationContext';
+import { loginSuccess } from '../store/authSlice';
+import { isPasswordValid, getPasswordErrorMessage, isEmailValid } from '../util/validation';
+import { GENDERS, COLLEGE_YEARS } from '../util/data';
+import { authAPI } from '../lib/api';
+import { tokenService } from '../lib/services/tokenService';
+import { ROUTES, LABELS, DELAYS, ERROR_MESSAGES, ACADEMIC_YEARS } from '../config';
+import Layout from '../layout/Layout';
 import '../styles/auth.css';
 
 const INITIAL_FORM_STATE = {
