@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 import { applicationAPI } from '../lib/api';
 import { NotificationContext } from '../component/NotificationContext';
 import Layout from '../layout/Layout';
-import '../styles/applications.css';
 import { formatDate } from '../util/adminHelpers';
 
 const Applications = () => {
@@ -82,8 +81,8 @@ const Applications = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="applications-container">
-          <div className="loading-message">Loading your applications...</div>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="text-center py-12 text-gray-600">Loading your applications...</div>
         </div>
       </Layout>
     );
@@ -91,114 +90,114 @@ const Applications = () => {
 
   return (
     <Layout>
-      <div className="applications-container">
-        <div className="applications-header">
-          <h2>My Hostel Applications</h2>
-          <p>Track the status of your hostel applications</p>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">My Hostel Applications</h2>
+          <p className="text-gray-600">Track the status of your hostel applications</p>
         </div>
 
         {applications.length === 0 ? (
-          <div className="no-applications">
-            <p>You haven't submitted any applications yet.</p>
+          <div className="text-center py-12 bg-gray-50 rounded-lg">
+            <p className="text-gray-600 mb-4">You haven't submitted any applications yet.</p>
             <button
-              className="btn btn-primary"
+              className="px-6 py-3 bg-primary hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
               onClick={() => navigate('/book-hostel')}
             >
               Book a Hostel
             </button>
           </div>
         ) : (
-          <div className="applications-list">
+          <div className="space-y-6">
             {applications.map((application) => {
               const hostel = hostelMap[application?.hostelId];
 
               return (
-                <div key={application.id} className="application-card">
-                  <div className="app-header">
-                    <div>
-                      <h3>{application?.hostelId?.name || 'Hostel'}</h3>
-                      <p className="app-date">
+                <div key={application.id} className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                  <div className="bg-gradient-to-r from-primary to-secondary p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="text-white">
+                      <h3 className="text-xl font-bold">{application?.hostelId?.name || 'Hostel'}</h3>
+                      <p className="text-sm mt-1 opacity-90">
                         Applied on: {formatDate(application.appliedOn)}
                       </p>
                     </div>
 
-                    <div className={statusConfig.getStatusClass(application.status)}>
-                      <span className="status-icon">
+                    <div className={`px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 ${
+                      application.status === 'approved' ? 'bg-green-100 text-green-800' :
+                      application.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      <span className="text-lg">
                         {statusConfig.getStatusIcon(application.status)}
                       </span>
-                      <span className="status-text">
+                      <span>
                         {application.status.toUpperCase()}
                       </span>
                     </div>
                   </div>
 
-                  <div className="app-details">
-                    <div className="detail-column">
-                      <h4>Student & Application Details</h4>
+                  <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-900 mb-4">Student & Application Details</h4>
 
-                      <div className="detail-item">
-                        <span className="label">Hostel Name:</span>
-                        <span className="value">{application?.hostelId?.name|| 'N/A'}</span>
-                      </div>
+                      <div className="space-y-3">
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600 font-medium">Hostel Name:</span>
+                          <span className="text-sm text-gray-900">{application?.hostelId?.name|| 'N/A'}</span>
+                        </div>
 
-                      <div className="detail-item">
-                        <span className="label">Year:</span>
-                        <span className="value">{application.studentYear}</span>
-                      </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600 font-medium">Year:</span>
+                          <span className="text-sm text-gray-900">{application.studentYear}</span>
+                        </div>
 
-                      <div className="detail-item">
-                        <span className="label">Branch:</span>
-                        <span className="value">{application.branch}</span>
-                      </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600 font-medium">Branch:</span>
+                          <span className="text-sm text-gray-900">{application.branch}</span>
+                        </div>
 
-                      <div className="detail-item">
-                        <span className="label">Caste:</span>
-                        <span className="value">{application.caste}</span>
-                      </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600 font-medium">Caste:</span>
+                          <span className="text-sm text-gray-900">{application.caste}</span>
+                        </div>
 
-                      <div className="detail-item">
-                        <span className="label">DOB:</span>
-                        <span className="value">{application.dateOfBirth}</span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="label">Room No:</span>
-                        <span className="value">{application.roomNumber}</span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="label">Floor:</span>
-                        <span className="value">{application.floor}</span>
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600 font-medium">DOB:</span>
+                          <span className="text-sm text-gray-900">{application.dateOfBirth}</span>
+                        </div>
                       </div>
                     </div>
 
                     {application.status === 'approved' && (
-                      <div className="detail-column accepted-details">
-                        <h4>Allocation Details</h4>
+                      <div>
+                        <h4 className="text-lg font-semibold text-green-800 mb-4">Allocation Details</h4>
 
-                        <div className="detail-item">
-                          <span className="label">Room Number:</span>
-                          <span className="value success">{application.roomNumber}</span>
-                        </div>
+                        <div className="space-y-3">
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-600 font-medium">Room Number:</span>
+                            <span className="text-sm text-green-700 font-semibold">{application.roomNumber}</span>
+                          </div>
 
-                        <div className="detail-item">
-                          <span className="label">Floor:</span>
-                          <span className="value success">{application.floor}</span>
-                        </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-600 font-medium">Floor:</span>
+                            <span className="text-sm text-green-700 font-semibold">{application.floor}</span>
+                          </div>
 
-                        <div className="detail-item">
-                          <span className="label">Approved Date:</span>
-                          <span className="value success">
-                            {formatDate(application.approvedOn)}
-                          </span>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-600 font-medium">Approved Date:</span>
+                            <span className="text-sm text-green-700 font-semibold">
+                              {formatDate(application.approvedOn)}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     )}
 
                     {application.status === 'rejected' && (
-                      <div className="detail-column rejected-details">
-                        <h4>Rejection Details</h4>
-                        <div className="detail-item">
-                          <span className="label">Reason:</span>
-                          <span className="value error">
+                      <div>
+                        <h4 className="text-lg font-semibold text-red-800 mb-4">Rejection Details</h4>
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600 font-medium">Reason:</span>
+                          <span className="text-sm text-red-700">
                             {application.reason || 'No reason provided'}
                           </span>
                         </div>
@@ -211,9 +210,9 @@ const Applications = () => {
           </div>
         )}
 
-        <div className="applications-action">
+        <div className="mt-8 text-center">
           <button
-            className="btn btn-secondary"
+            className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors"
             onClick={() => navigate('/dashboard')}
           >
             Back to Dashboard

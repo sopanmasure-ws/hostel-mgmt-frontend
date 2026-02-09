@@ -51,6 +51,8 @@ const SuperAdminDashboard = () => {
   const [selectedHostelForRooms, setSelectedHostelForRooms] = useState(null);
   const [selectedFloor, setSelectedFloor] = useState(null);
   const [roomStatusFilter, setRoomStatusFilter] = useState('all'); // 'all', 'available', 'occupied', 'damaged'
+  const [hostelsWithStats, setHostelsWithStats] = useState([]); // Hostels with roomStatistics and floorStatistics
+  const [loadingHostelsStats, setLoadingHostelsStats] = useState(false);
   
   // For room assignment
   const [showAssignRoomModal, setShowAssignRoomModal] = useState(false);
@@ -278,17 +280,45 @@ const SuperAdminDashboard = () => {
       .changeRoomStatus(selectedHostelForRooms._id, room._id, { status })
       .then(() => {
         showNotification('Room status updated successfully', 'success');
-        // Clear the selection to show updated status from API
+        
+        // Update the room status in the local state immediately
+        setDashboardData((prevData) => {
+          if (!prevData || !Array.isArray(prevData.totalRooms)) return prevData;
+          
+          const updatedRooms = prevData.totalRooms.map((r) => {
+            if (r._id === room._id) {
+              return { 
+                ...r, 
+                status: status, 
+                isDamaged: status === 'damaged' || status === 'damage',
+                // Ensure we maintain other fields
+                occupiedBeds: r.occupiedBeds || 0,
+                capacity: r.capacity,
+                studentDetails: r.studentDetails || []
+              };
+            }
+            return r;
+          });
+          
+          return {
+            ...prevData,
+            totalRooms: updatedRooms,
+          };
+        });
+        
+        // Clear the selection to show updated status
         setRoomStatusSelections((prev) => {
           const updated = { ...prev };
           delete updated[room._id];
           return updated;
         });
+        
+        // Clear cache so next full refresh gets fresh data
         cacheService.remove('superadmin_dashboard_detailed', 'local');
-        fetchDashboardData();
       })
       .catch((err) => {
-        showNotification(errorHandlers.parseError(err), 'error');
+        const errorMessage = errorHandlers.parseError(err);
+        showNotification(errorMessage || 'Failed to update room status', 'error');
       })
       .finally(() => {
         setRoomStatusUpdatingId(null);
@@ -306,6 +336,20 @@ const SuperAdminDashboard = () => {
       setSelectedHostelForRooms(null);
       setSelectedFloor(null);
       setRoomStatusFilter(modalType === 'occupied-rooms' ? 'occupied' : modalType === 'available-rooms' ? 'available' : 'all');
+      
+      // Fetch hostels with statistics
+      setLoadingHostelsStats(true);
+      superAdminAPI.getAllHostels()
+        .then((response) => {
+          const hostels = response.data?.hostels || response.hostels || [];
+          setHostelsWithStats(hostels);
+        })
+        .catch((err) => {
+          showNotification(errorHandlers.parseError(err), 'error');
+        })
+        .finally(() => {
+          setLoadingHostelsStats(false);
+        });
     }
   };
 
@@ -772,16 +816,16 @@ const SuperAdminDashboard = () => {
         
         return (
           <div>
-            <div className="student-filters">
-              <div className="filter-group">
-                <label>Filter by Hostel:</label>
+            <div className="flex flex-wrap gap-3 mb-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700">Filter by Hostel:</label>
                 <select 
                   value={studentFilterHostel} 
                   onChange={(e) => {
                     setStudentFilterHostel(e.target.value);
                     setPage(1);
                   }}
-                  className="filter-select"
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none bg-white text-sm"
                 >
                   <option value="all">All Hostels</option>
                   {studentHostels.map((hostel) => (
@@ -789,15 +833,15 @@ const SuperAdminDashboard = () => {
                   ))}
                 </select>
               </div>
-              <div className="filter-group">
-                <label>Filter by Gender:</label>
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700">Filter by Gender:</label>
                 <select 
                   value={studentFilterGender} 
                   onChange={(e) => {
                     setStudentFilterGender(e.target.value);
                     setPage(1);
                   }}
-                  className="filter-select"
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none bg-white text-sm"
                 >
                   <option value="all">All</option>
                   <option value="male">Male</option>
@@ -806,7 +850,7 @@ const SuperAdminDashboard = () => {
                 </select>
               </div>
               <button 
-                className="btn btn-sm btn-secondary"
+                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors text-sm"
                 onClick={() => {
                   setStudentFilterHostel('all');
                   setStudentFilterGender('all');
@@ -816,19 +860,20 @@ const SuperAdminDashboard = () => {
                 Clear Filters
               </button>
             </div>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>PNR</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Gender</th>
-                  <th>Room</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">PNR</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Email</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Gender</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Room</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
                 {filteredStudents.map((student) => {
                   // Find the room details from totalRooms if available
                   const roomDetails = dashboardData?.totalRooms?.find(
@@ -840,22 +885,27 @@ const SuperAdminDashboard = () => {
                     'Not Assigned';
                   
                   return (
-                  <tr key={student.pnr || student._id}>
-                    <td>{student.pnr}</td>
-                    <td>{student.name}</td>
-                    <td>{student.email}</td>
-                    <td>{student.gender}</td>
-                    <td>{roomDisplay}</td>
-                    <td>
-                      <span className={`status-badge ${student.applicationStatus?.toLowerCase()}`}>
+                  <tr key={student.pnr || student._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.pnr}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.email}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.gender}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{roomDisplay}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        student.applicationStatus?.toUpperCase() === 'APPROVED' ? 'bg-green-100 text-green-800' :
+                        student.applicationStatus?.toUpperCase() === 'NOT_APPLIED' ? 'bg-gray-100 text-gray-800' :
+                        student.applicationStatus?.toUpperCase() === 'REJECTED' ? 'bg-red-100 text-red-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
                         {student.applicationStatus || 'N/A'}
                       </span>
                     </td>
-                    <td>
-                      <div className="action-buttons">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <div className="flex flex-wrap gap-2">
                         {student.roomNumber && (
                           <button
-                            className="btn btn-sm btn-primary"
+                            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-xs flex items-center gap-1"
                             onClick={() => handleChangeRoom(student)}
                             title="Change Room"
                           >
@@ -864,7 +914,7 @@ const SuperAdminDashboard = () => {
                         )}
                         {student.applicationStatus?.toUpperCase() === 'DISALLOWCATED' && (
                           <button
-                            className="btn btn-sm btn-info"
+                            className="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-lg transition-colors text-xs flex items-center gap-1"
                             onClick={() => handleReassignRoom(student)}
                             title="Reassign Room"
                           >
@@ -872,11 +922,11 @@ const SuperAdminDashboard = () => {
                           </button>
                         )}
                         <button
-                          className={`btn btn-sm ${student.isBlacklisted ? 'btn-success' : 'btn-danger'}`}
+                          className={`px-3 py-1.5 ${student.isBlacklisted ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white font-medium rounded-lg transition-colors text-xs flex items-center gap-1`}
                           onClick={() => handleBlacklistToggle(student)}
                           title={student.isBlacklisted ? 'Unblacklist' : 'Blacklist'}
                         >
-                          {student.isBlacklisted ? '🔓 Unblacklist' : '🔒 Blacklist'}
+                          {student.isBlacklisted ? '🔓 Blacklist' : '🔒 Blacklist'}
                         </button>
                       </div>
                     </td>
@@ -885,88 +935,95 @@ const SuperAdminDashboard = () => {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
         );
       }
 
       case 'admins':
         return (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Admin ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Hostels</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((admin) => (
-                <tr key={admin._id}>
-                  <td>{admin.adminId}</td>
-                  <td>{admin.name}</td>
-                  <td>{admin.email}</td>
-                  <td>{admin.phone}</td>
-                  <td>{admin.hostels?.length || 0}</td>
-                  <td>
-                    <span className={`status-badge ${admin.isDisabled ? 'disabled' : 'active'}`}>
-                      {admin.isDisabled ? 'Disabled' : 'Active'}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      className={`btn btn-sm ${admin.isDisabled ? 'btn-success' : 'btn-warning'}`}
-                      onClick={() => handleDisableAdmin(admin)}
-                    >
-                      {admin.isDisabled ? 'Enable' : 'Disable'}
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Admin ID</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Phone</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Hostels</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {data.map((admin) => (
+                  <tr key={admin._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{admin.adminId}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{admin.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{admin.email}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{admin.phone}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{admin.hostels?.length || 0}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        admin.isDisabled ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                      }`}>
+                        {admin.isDisabled ? 'Disabled' : 'Active'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <button
+                        className={`px-4 py-2 ${admin.isDisabled ? 'bg-green-600 hover:bg-green-700' : 'bg-yellow-600 hover:bg-yellow-700'} text-white font-medium rounded-lg transition-colors text-xs`}
+                        onClick={() => handleDisableAdmin(admin)}
+                      >
+                        {admin.isDisabled ? 'Enable' : 'Disable'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         );
 
       case 'hostels':
         return (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Location</th>
-                <th>Gender</th>
-                <th>Capacity</th>
-                <th>Available</th>
-                <th>Warden</th>
-                <th>Rent/Month</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((hostel) => (
-                <tr key={hostel._id}>
-                  <td>{hostel.name}</td>
-                  <td>{hostel.location || hostel.address}</td>
-                  <td>{hostel.gender}</td>
-                  <td>{hostel.capacity}</td>
-                  <td>{hostel.availableRooms}</td>
-                  <td>{hostel.warden}</td>
-                  <td>₹{hostel.rentPerMonth}</td>
-                  <td>
-                    <button
-                      className="btn btn-sm btn-info"
-                      onClick={() => openHostelDetailModal(hostel._id)}
-                    >
-                      View Details
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Location</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Gender</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Capacity</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Available</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Warden</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Rent/Month</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {data.map((hostel) => (
+                  <tr key={hostel._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{hostel.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{hostel.location || hostel.address}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{hostel.gender}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{hostel.capacity}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{hostel.availableRooms}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{hostel.warden}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{hostel.rentPerMonth}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <button
+                        className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-lg transition-colors text-xs"
+                        onClick={() => openHostelDetailModal(hostel._id)}
+                      >
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         );
 
       case 'rooms':
@@ -974,8 +1031,8 @@ const SuperAdminDashboard = () => {
       case 'available-rooms':
         // Hierarchical view: Hostels → Floors → Rooms
         if (roomView === 'hostels') {
-          // Show list of hostels
-          let hostels = dashboardData?.allHostels || dashboardData?.totalHostels || [];
+          // Show list of hostels with statistics
+          let hostels = hostelsWithStats.length > 0 ? hostelsWithStats : (dashboardData?.allHostels || dashboardData?.totalHostels || []);
           
           // Apply search filter on hostel names
           if (searchTerm) {
@@ -984,70 +1041,98 @@ const SuperAdminDashboard = () => {
             );
           }
           
+          if (loadingHostelsStats) {
+            return <div className="text-center py-12 text-gray-600">Loading hostels...</div>;
+          }
+          
           return (
-            <div className="rooms-hierarchy-view">
-              <div className="room-filters">
+            <div>
+              <div className="flex flex-wrap gap-2 mb-6">
                 <button
-                  className={`filter-btn ${roomStatusFilter === 'all' ? 'active' : ''}`}
+                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                    roomStatusFilter === 'all' 
+                      ? 'bg-purple-600 text-white shadow-md' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                   onClick={() => setRoomStatusFilter('all')}
                 >
                   All Rooms
                 </button>
                 <button
-                  className={`filter-btn ${roomStatusFilter === 'available' ? 'active' : ''}`}
+                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                    roomStatusFilter === 'available' 
+                      ? 'bg-green-600 text-white shadow-md' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                   onClick={() => setRoomStatusFilter('available')}
                 >
                   🟢 Available
                 </button>
                 <button
-                  className={`filter-btn ${roomStatusFilter === 'occupied' ? 'active' : ''}`}
+                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                    roomStatusFilter === 'occupied' 
+                      ? 'bg-red-600 text-white shadow-md' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                   onClick={() => setRoomStatusFilter('occupied')}
                 >
                   🔴 Occupied
                 </button>
                 <button
-                  className={`filter-btn ${roomStatusFilter === 'damaged' ? 'active' : ''}`}
+                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                    roomStatusFilter === 'damaged' 
+                      ? 'bg-yellow-600 text-white shadow-md' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                   onClick={() => setRoomStatusFilter('damaged')}
                 >
                   ⚠️ Damaged
                 </button>
               </div>
               
-              <div className="hostels-list-grid">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {hostels.map((hostel) => {
-                  const hostelRooms = dashboardData.totalRooms?.filter(r => r.hostelId?._id === hostel._id || r.hostelId === hostel._id) || [];
-                  const totalRooms = hostelRooms.length;
-                  const occupiedRooms = hostelRooms.filter(r => (r.capacity - (r.occupiedBeds || 0)) === 0).length;
-                  const availableRooms = hostelRooms.filter(r => (r.capacity - (r.occupiedBeds || 0)) > 0 && !r.isDamaged).length;
-                  const damagedRooms = hostelRooms.filter(r => r.isDamaged).length;
+                  // Use roomStatistics from API response if available
+                  const stats = hostel.roomStatistics || {};
+                  const totalRooms = stats.totalRooms || 0;
+                  const availableRooms = stats.available || 0;
+                  const occupiedRooms = stats.occupied || 0;
+                  const damagedRooms = stats.damaged || 0;
+                  const maintenanceRooms = stats.underMaintenance || 0;
                   
                   return (
                     <div
                       key={hostel._id}
-                      className="hostel-card clickable"
+                      className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow cursor-pointer border border-gray-200 overflow-hidden"
                       onClick={() => handleHostelClickInRoomView(hostel)}
                     >
-                      <div className="hostel-card-header">
-                        <h3>{hostel.name}</h3>
-                        <span className="hostel-gender-badge">{hostel.gender}</span>
+                      <div className="bg-gradient-to-r from-purple-500 to-blue-500 text-white p-4 flex justify-between items-center">
+                        <h3 className="text-lg font-bold">{hostel.name}</h3>
+                        <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm font-semibold">{hostel.gender}</span>
                       </div>
-                      <div className="hostel-card-stats">
-                        <div className="stat-item">
-                          <span className="stat-label">Total Rooms:</span>
-                          <span className="stat-value">{totalRooms}</span>
+                      <div className="p-4 space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600 font-medium">Total Rooms:</span>
+                          <span className="text-lg font-bold text-gray-900">{totalRooms}</span>
                         </div>
-                        <div className="stat-item available">
-                          <span className="stat-label">Available:</span>
-                          <span className="stat-value">{availableRooms}</span>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-green-600 font-medium">Available:</span>
+                          <span className="text-lg font-bold text-green-600">{availableRooms}</span>
                         </div>
-                        <div className="stat-item occupied">
-                          <span className="stat-label">Occupied:</span>
-                          <span className="stat-value">{occupiedRooms}</span>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-red-600 font-medium">Occupied:</span>
+                          <span className="text-lg font-bold text-red-600">{occupiedRooms}</span>
                         </div>
                         {damagedRooms > 0 && (
-                          <div className="stat-item damaged">
-                            <span className="stat-label">Damaged:</span>
-                            <span className="stat-value">{damagedRooms}</span>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-yellow-600 font-medium">Damaged:</span>
+                            <span className="text-lg font-bold text-yellow-600">{damagedRooms}</span>
+                          </div>
+                        )}
+                        {maintenanceRooms > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-blue-600 font-medium">Maintenance:</span>
+                            <span className="text-lg font-bold text-blue-600">{maintenanceRooms}</span>
                           </div>
                         )}
                       </div>
@@ -1059,47 +1144,68 @@ const SuperAdminDashboard = () => {
           );
         } else if (roomView === 'floors' && selectedHostelForRooms) {
           // Show floors of selected hostel
-          const hostelRooms = dashboardData.totalRooms?.filter(r => 
-            r.hostelId?._id === selectedHostelForRooms._id || r.hostelId === selectedHostelForRooms._id
-          ) || [];
-          const floors = getFloorsFromRooms(hostelRooms);
+          // Use floorStatistics from API response if available, otherwise calculate from rooms
+          let floors = [];
+          if (selectedHostelForRooms.floorStatistics) {
+            // Use pre-calculated floor statistics from API
+            floors = Object.entries(selectedHostelForRooms.floorStatistics).map(([floorName, stats]) => ({
+              floor: floorName.replace('Floor ', ''),
+              totalRooms: stats.totalRooms || 0,
+              availableRooms: stats.available || 0,
+              occupiedRooms: stats.occupied || 0,
+              damagedRooms: stats.damaged || 0,
+              maintenanceRooms: stats.underMaintenance || 0
+            })).sort((a, b) => parseInt(a.floor) - parseInt(b.floor));
+          } else {
+            // Fallback to calculating from totalRooms if floorStatistics not available
+            const hostelRooms = dashboardData.totalRooms?.filter(r => 
+              r.hostelId?._id === selectedHostelForRooms._id || r.hostelId === selectedHostelForRooms._id
+            ) || [];
+            floors = getFloorsFromRooms(hostelRooms);
+          }
           
           return (
-            <div className="rooms-hierarchy-view">
-              <div className="breadcrumb">
-                <button onClick={handleBackToHostels} className="breadcrumb-btn">
+            <div>
+              <div className="flex items-center gap-2 mb-6 text-sm">
+                <button onClick={handleBackToHostels} className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
                   ← Back to Hostels
                 </button>
-                <span className="breadcrumb-current">{selectedHostelForRooms.name}</span>
+                <span className="text-gray-900 font-semibold">{selectedHostelForRooms.name}</span>
               </div>
               
-              <div className="floors-grid">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {floors.map((floorData) => (
                   <div
                     key={floorData.floor}
-                    className="floor-card clickable"
+                    className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow cursor-pointer border border-gray-200 overflow-hidden"
                     onClick={() => handleFloorClick(floorData.floor)}
                   >
-                    <div className="floor-header">
-                      <h3>Floor {floorData.floor}</h3>
+                    <div className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white p-4">
+                      <h3 className="text-lg font-bold">Floor {floorData.floor}</h3>
                     </div>
-                    <div className="floor-stats">
-                      <div className="stat-item">
-                        <span className="stat-label">Total Rooms:</span>
-                        <span className="stat-value">{floorData.totalRooms}</span>
+                    <div className="p-4 space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600 font-medium">Total Rooms:</span>
+                        <span className="text-lg font-bold text-gray-900">{floorData.totalRooms}</span>
                       </div>
-                      <div className="stat-item available">
-                        <span className="stat-label">Available:</span>
-                        <span className="stat-value">{floorData.availableRooms}</span>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-green-600 font-medium">Available:</span>
+                        <span className="text-lg font-bold text-green-600">{floorData.availableRooms}</span>
                       </div>
-                      <div className="stat-item occupied">
-                        <span className="stat-label">Occupied:</span>
-                        <span className="stat-value">{floorData.occupiedRooms}</span>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-red-600 font-medium">Occupied:</span>
+                        <span className="text-lg font-bold text-red-600">{floorData.occupiedRooms}</span>
                       </div>
                       {floorData.damagedRooms > 0 && (
-                        <div className="stat-item damaged">
-                          <span className="stat-label">Damaged:</span>
-                          <span className="stat-value">{floorData.damagedRooms}</span>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-yellow-600 font-medium">Damaged:</span>
+                          <span className="text-lg font-bold text-yellow-600">{floorData.damagedRooms}</span>
+                        </div>
+                      )}
+                      {floorData.maintenanceRooms > 0 && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-blue-600 font-medium">Maintenance:</span>
+                          <span className="text-lg font-bold text-blue-600">{floorData.maintenanceRooms}</span>
                         </div>
                       )}
                     </div>
@@ -1110,10 +1216,15 @@ const SuperAdminDashboard = () => {
           );
         } else if (roomView === 'rooms' && selectedFloor) {
           // Show rooms of selected floor
-          const hostelRooms = dashboardData.totalRooms?.filter(r => 
-            (r.hostelId?._id === selectedHostelForRooms._id || r.hostelId === selectedHostelForRooms._id) &&
-            (r.floor === selectedFloor || r.floorNumber === selectedFloor)
-          ) || [];
+          const hostelRooms = dashboardData.totalRooms?.filter(r => {
+            const matchesHostel = r.hostelId?._id === selectedHostelForRooms._id || r.hostelId === selectedHostelForRooms._id;
+            if (!matchesHostel) return false;
+            
+            // Handle different floor formats: "1", "Floor 1", 1
+            const roomFloor = String(r.floor || r.floorNumber || '').replace('Floor ', '').trim();
+            const selectedFloorStr = String(selectedFloor).replace('Floor ', '').trim();
+            return roomFloor === selectedFloorStr;
+          }) || [];
           
           // Apply filter
           const filteredRooms = hostelRooms.filter(room => {
@@ -1125,49 +1236,67 @@ const SuperAdminDashboard = () => {
           });
           
           return (
-            <div className="rooms-hierarchy-view">
-              <div className="breadcrumb">
-                <button onClick={handleBackToHostels} className="breadcrumb-btn">
+            <div>
+              <div className="flex flex-wrap items-center gap-2 mb-6 text-sm">
+                <button onClick={handleBackToHostels} className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
                   Hostels
                 </button>
-                <span className="breadcrumb-separator">→</span>
-                <button onClick={handleBackToFloors} className="breadcrumb-btn">
+                <span className="text-gray-400">→</span>
+                <button onClick={handleBackToFloors} className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
                   {selectedHostelForRooms.name}
                 </button>
-                <span className="breadcrumb-separator">→</span>
-                <span className="breadcrumb-current"> {selectedFloor}</span>
+                <span className="text-gray-400">→</span>
+                <span className="text-gray-900 font-semibold">Floor {selectedFloor}</span>
               </div>
               
-              <div className="room-filters">
+              <div className="flex flex-wrap gap-2 mb-6">
                 <button
-                  className={`filter-btn ${roomStatusFilter === 'all' ? 'active' : ''}`}
+                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                    roomStatusFilter === 'all' 
+                      ? 'bg-purple-600 text-white shadow-md' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                   onClick={() => setRoomStatusFilter('all')}
                 >
                   All
                 </button>
                 <button
-                  className={`filter-btn ${roomStatusFilter === 'available' ? 'active' : ''}`}
+                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                    roomStatusFilter === 'available' 
+                      ? 'bg-green-600 text-white shadow-md' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                   onClick={() => setRoomStatusFilter('available')}
                 >
                   🟢 Available
                 </button>
                 <button
-                  className={`filter-btn ${roomStatusFilter === 'occupied' ? 'active' : ''}`}
+                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                    roomStatusFilter === 'occupied' 
+                      ? 'bg-red-600 text-white shadow-md' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                   onClick={() => setRoomStatusFilter('occupied')}
                 >
                   🔴 Occupied
                 </button>
                 <button
-                  className={`filter-btn ${roomStatusFilter === 'damaged' ? 'active' : ''}`}
+                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                    roomStatusFilter === 'damaged' 
+                      ? 'bg-yellow-600 text-white shadow-md' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                   onClick={() => setRoomStatusFilter('damaged')}
                 >
                   ⚠️ Damaged
                 </button>
               </div>
               
-              <div className="rooms-grid-floor">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredRooms.length === 0 ? (
-                  <div className="no-rooms-message">No rooms found with selected filter</div>
+                  <div className="col-span-full text-center py-12 bg-gray-50 rounded-lg">
+                    <p className="text-gray-600">No rooms found with selected filter</p>
+                  </div>
                 ) : (
                   filteredRooms.map((room) => {
                     const availableSeats = room.capacity - (room.occupiedBeds || 0);
@@ -1180,25 +1309,30 @@ const SuperAdminDashboard = () => {
                     return (
                       <div
                         key={room._id}
-                        className={`room-card-detailed ${isDamaged ? 'damaged' : isFullyOccupied ? 'occupied' : 'available'}`}
+                        className={`bg-white rounded-xl shadow-md border-2 p-4 transition-all ${
+                          isDamaged ? 'border-yellow-400 bg-yellow-50' : 
+                          isFullyOccupied ? 'border-red-400 bg-red-50' : 
+                          'border-green-400 bg-green-50 hover:shadow-lg'
+                        } ${!isDamaged && !isFullyOccupied ? 'cursor-pointer' : 'cursor-default'}`}
                         onClick={() => !isDamaged && !isFullyOccupied && handleRoomClick(room)}
-                        style={{ cursor: !isDamaged && !isFullyOccupied ? 'pointer' : 'default' }}
                       >
-                        <div className="room-header-info">
-                          <div className="hostel-name-small">{selectedHostelForRooms?.name || 'N/A'}</div>
-                          <div className="floor-info">{room.floor || 'N/A'}</div>
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <div className="text-xs text-gray-600 font-medium">{selectedHostelForRooms?.name || 'N/A'}</div>
+                            <div className="text-xs text-gray-500">Floor {room.floor || 'N/A'}</div>
+                          </div>
                         </div>
-                        <div className="room-number-large">
+                        <div className="text-xl font-bold text-gray-900 mb-2">
                           Room {room.roomNumber}
                         </div>
-                        <div className="room-capacity-info">
-                          <span className="occupied-count">{room.occupiedBeds || 0}</span>
-                          <span className="capacity-separator">/</span>
-                          <span className="total-capacity">{room.capacity}</span>
+                        <div className="text-2xl font-bold text-gray-700 mb-3">
+                          <span className="text-purple-600">{room.occupiedBeds || 0}</span>
+                          <span className="text-gray-400 mx-1">/</span>
+                          <span>{room.capacity}</span>
                         </div>
-                        <div className="room-status-control" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex gap-2 mb-3" onClick={(e) => e.stopPropagation()}>
                           <select
-                            className="filter-select room-status-select"
+                            className="flex-1 px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
                             value={selectedStatus}
                             onChange={(e) =>
                               setRoomStatusSelections((prev) => ({
@@ -1215,7 +1349,7 @@ const SuperAdminDashboard = () => {
                             <option value="damaged">Damaged</option>
                           </select>
                           <button
-                            className="btn btn-sm btn-secondary room-status-btn"
+                            className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium rounded-md transition-colors text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={() => handleRoomStatusChange(room, selectedStatus)}
                             disabled={roomStatusUpdatingId === room._id || selectedStatus === currentStatus || students.length > 0}
                             title={students.length > 0 ? 'Cannot change status: Room has assigned students' : 'Update Room Status'}
@@ -1224,29 +1358,31 @@ const SuperAdminDashboard = () => {
                           </button>
                         </div>
                         {isDamaged || selectedStatus === 'damaged' || selectedStatus === 'maintenance' ? (
-                          <div className={`room-status-label ${selectedStatus === 'maintenance' ? 'maintenance' : 'damaged'}`}>
+                          <div className={`px-3 py-2 rounded-lg text-center font-semibold text-sm ${
+                            selectedStatus === 'maintenance' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'
+                          }`}>
                             {selectedStatus === 'maintenance' ? '🔧 Under Maintenance' : '⚠️ Damaged'}
                           </div>
                         ) : isFullyOccupied ? (
                           <>
-                            <div className="room-status-label occupied">
+                            <div className="px-3 py-2 bg-red-100 text-red-800 rounded-lg text-center font-semibold text-sm mb-3">
                               🔴 Occupied
                             </div>
                             {students.length > 0 && (
-                              <div className="room-students">
+                              <div className="space-y-2">
                                 {students.map((student, idx) => (
-                                  <div key={idx} className="student-name-chip">
-                                    <span className="student-name-text">{student.name || 'Unknown'}</span>
+                                  <div key={idx} className="flex items-center justify-between bg-white px-3 py-2 rounded-lg border border-gray-200">
+                                    <span className="text-sm text-gray-700 font-medium">{student.name || 'Unknown'}</span>
                                     <button
                                       type="button"
-                                      className="remove-student-btn"
+                                      className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-md transition-colors text-xs font-medium"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         handleRemoveStudentFromRoom(student);
                                       }}
                                       title="Remove from room"
                                     >
-                                      🗑️
+                                      🗑️ Remove
                                     </button>
                                   </div>
                                 ))}
@@ -1255,24 +1391,24 @@ const SuperAdminDashboard = () => {
                           </>
                         ) : (
                           <>
-                            <div className="room-status-label available">
+                            <div className="px-3 py-2 bg-green-100 text-green-800 rounded-lg text-center font-semibold text-sm mb-3">
                               🟢 {availableSeats} Free
                             </div>
                             {students.length > 0 && (
-                              <div className="room-students">
+                              <div className="space-y-2 mb-3">
                                 {students.map((student, idx) => (
-                                  <div key={idx} className="student-name-chip">
-                                    <span className="student-name-text">{student.name || 'Unknown'}</span>
+                                  <div key={idx} className="flex items-center justify-between bg-white px-3 py-2 rounded-lg border border-gray-200">
+                                    <span className="text-sm text-gray-700 font-medium">{student.name || 'Unknown'}</span>
                                     <button
                                       type="button"
-                                      className="remove-student-btn"
+                                      className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-md transition-colors text-xs font-medium"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         handleRemoveStudentFromRoom(student);
                                       }}
                                       title="Remove from room"
                                     >
-                                      🗑️
+                                      🗑️ Remove
                                     </button>
                                   </div>
                                 ))}
@@ -1280,7 +1416,7 @@ const SuperAdminDashboard = () => {
                             )}
                             {selectedStatus !== 'maintenance' && selectedStatus !== 'damaged' && currentStatus !== 'maintenance' && currentStatus !== 'damaged' && (
                               <button
-                                className="btn btn-assign-room"
+                                className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleRoomClick(room);
@@ -1300,7 +1436,7 @@ const SuperAdminDashboard = () => {
           );
         }
         
-        return <div className="no-data">Loading rooms...</div>;
+        return <div className="text-center py-12 text-gray-600">Loading rooms...</div>;
 
       case 'pending-applications':
       case 'approved-applications':
@@ -1581,10 +1717,10 @@ const SuperAdminDashboard = () => {
                 </button>
               </div>
               
-              <div className="modal-filters">
+              <div className="p-4 border-b border-gray-200">
                 <input
                   type="text"
-                  className="search-input"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
                   placeholder="Search..."
                   value={searchTerm}
                   onChange={(e) => {
@@ -1594,7 +1730,7 @@ const SuperAdminDashboard = () => {
                 />
               </div>
 
-              <div className="modal-body">
+              <div className="p-6 overflow-y-auto" style={{maxHeight: 'calc(90vh - 240px)'}}>
                 {renderModalContent()}
               </div>
 
@@ -1603,7 +1739,7 @@ const SuperAdminDashboard = () => {
                activeModal !== 'rooms' && 
                activeModal !== 'occupied-rooms' && 
                activeModal !== 'available-rooms' && (
-                <div className="modal-footer">
+                <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
                   <Pagination
                     currentPage={page}
                     totalItems={getModalData().length}
@@ -1984,7 +2120,7 @@ const SuperAdminDashboard = () => {
               <h2>Assign Student to Room {selectedRoomForAssignment?.roomNumber}</h2>
               <p className="modal-description">
                 Hostel: <strong>{selectedHostelForRooms?.name}</strong> | 
-                Floor: <strong>{selectedFloor}</strong> | 
+                <strong>{selectedFloor}</strong> | 
                 Available Seats: <strong>{selectedRoomForAssignment?.capacity - (selectedRoomForAssignment?.occupiedBeds || 0)}</strong>
               </p>
 

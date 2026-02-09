@@ -7,7 +7,6 @@ import Pagination from '../component/Pagination';
 import { hostelAPI } from '../lib/api';
 import { ROUTES } from '../config';
 import Layout from '../layout/Layout';
-import '../styles/hostel.css';
 
 const BookHostel = () => {
   const navigate = useNavigate();
@@ -81,8 +80,8 @@ const BookHostel = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="hostel-list-container">
-          <div className="loading-message">Loading hostels...</div>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="text-center py-12 text-gray-600">Loading hostels...</div>
         </div>
       </Layout>
     );
@@ -90,40 +89,42 @@ const BookHostel = () => {
 
   return (
     <Layout>
-      <div className="hostel-list-container">
-        <div className="hostel-list-header">
-          <h2>Available Hostels for {user?.gender?.toUpperCase()}</h2>
-          <p>Select a hostel to view details and apply</p>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Available Hostels for {user?.gender?.toUpperCase()}</h2>
+          <p className="text-gray-600">Select a hostel to view details and apply</p>
         </div>
 
         {filteredHostels.length === 0 ? (
-          <div className="no-hostels">
-            <p>No hostels available for your gender at the moment.</p>
+          <div className="text-center py-12 bg-gray-50 rounded-lg">
+            <p className="text-gray-600">No hostels available for your gender at the moment.</p>
           </div>
         ) : (
           <>
-            <div className="hostels-grid">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {pagedHostels.map((hostel) => (
-              <div key={hostel._id} className="hostel-card">
-                <div className="hostel-image">
-                  <img src={hostel.image} alt={hostel.name} />
+              <div key={hostel._id} className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow">
+                <div className="h-48 overflow-hidden">
+                  <img src={hostel.image} alt={hostel.name} className="w-full h-full object-cover" />
                 </div>
-                <div className="hostel-info">
-                  <h3>{hostel.name}</h3>
-                  <p className="hostel-admin">
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{hostel.name}</h3>
+                  <p className="text-sm text-gray-600 mb-2">
                     <strong>Warden:</strong> {hostel.warden}
                   </p>
-                  <p className="hostel-description">{hostel.description}</p>
-                  <div className="hostel-details">
-                    <span className="detail">
-                      <strong>Available Rooms:</strong> {hostel.availableRooms}
-                    </span>
-                    <span className="detail">
-                      <strong>Price/Month:</strong> ₹{hostel.rentPerMonth}
-                    </span>
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">{hostel.description}</p>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600 font-medium">Available Rooms:</span>
+                      <span className="text-gray-900 font-semibold">{hostel.availableRooms}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600 font-medium">Price/Month:</span>
+                      <span className="text-gray-900 font-semibold">₹{hostel.rentPerMonth}</span>
+                    </div>
                   </div>
                   <button
-                    className="btn btn-primary view-btn"
+                    className="w-full py-2.5 bg-primary hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
                     onClick={() => handleSelectHostel(hostel._id)}
                   >
                     View Details

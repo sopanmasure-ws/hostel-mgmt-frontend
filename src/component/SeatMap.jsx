@@ -42,7 +42,7 @@ const SeatMap = ({ rooms, floors }) => {
               className={`floor-btn ${selectedFloor === floor ? 'active' : ''}`}
               onClick={() => setSelectedFloor(floor)}
             >
-              Floor {floor}
+              {floor}
             </button>
           ))}
         </div>

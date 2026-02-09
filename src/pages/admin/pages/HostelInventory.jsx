@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { NotificationContext } from '../../../component/NotificationContext';
-import { setRooms, setFilter } from '../../../store/adminSlice';
+import { setRooms } from '../../../store/adminSlice';
 import { adminRoomAPI } from '../../../lib/api';
 import { cacheService } from '../../../lib/services/cacheService';
 import Layout from '../../../layout/Layout';
@@ -14,7 +14,7 @@ const HostelInventory = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { adminAuth } = useSelector((state) => state);
-  const { rooms, currentHostel, filters } = useSelector((state) => state.admin);
+  const { rooms, currentHostel } = useSelector((state) => state.admin);
   const { showNotification } = useContext(NotificationContext);
 
   const [loading, setLoading] = useState(true);
@@ -134,7 +134,7 @@ const HostelInventory = () => {
                 <option value="">All Floors</option>
                 {uniqueFloors.map((floor) => (
                   <option key={floor} value={floor}>
-                    Floor {floor}
+                     {floor}
                   </option>
                 ))}
               </select>
@@ -198,7 +198,7 @@ const HostelInventory = () => {
                   </div>
                   <div className="room-info">
                     <p>
-                      <strong>Floor:</strong> {room.floor}
+                       {room.floor}
                     </p>
                     <p>
                       <strong>Capacity:</strong> {room.capacity}

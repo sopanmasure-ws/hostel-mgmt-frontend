@@ -901,13 +901,20 @@ export const errorHandlers = {
    * Parse API error message
    */
   parseError: (error) => {
-    if (error.response?.data?.message) {
-      return error.response.data.message;
+    try {
+      if (error?.response?.data?.message) {
+        return String(error.response.data.message);
+      }
+      if (error?.message) {
+        return String(error.message);
+      }
+      if (typeof error === 'string') {
+        return error;
+      }
+      return 'An error occurred. Please try again.';
+    } catch (e) {
+      return 'An error occurred. Please try again.';
     }
-    if (error.message) {
-      return error.message;
-    }
-    return 'An error occurred. Please try again.';
   },
 
   /**
