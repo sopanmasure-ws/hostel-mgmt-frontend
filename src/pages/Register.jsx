@@ -9,7 +9,6 @@ import { authAPI } from '../lib/api';
 import { tokenService } from '../lib/services/tokenService';
 import { ROUTES, LABELS, DELAYS, ERROR_MESSAGES, ACADEMIC_YEARS } from '../config';
 import Layout from '../layout/Layout';
-import '../styles/auth.css';
 
 const INITIAL_FORM_STATE = {
   name: '',
@@ -134,136 +133,145 @@ const Register = () => {
 
   return (
     <Layout>
-      <div className="auth-container">
-        <div className="auth-form-wrapper register-wrapper">
-          <h2>{LABELS.STUDENT_REGISTER}</h2>
+      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl w-full space-y-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-gray-900">{LABELS.STUDENT_REGISTER}</h2>
+            <p className="mt-2 text-sm text-gray-600">Create your student account</p>
+          </div>
 
-          {error && <div className="error-message">{error}</div>}
-
-          <form onSubmit={handleRegister} className="auth-form">
-            <div className="form-group">
-              <label>Full Name</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Enter your full name"
-                className="form-input"
-              />
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
             </div>
+          )}
 
-            <div className="form-group">
-              <label>PNR Number</label>
-              <input
-                type="text"
-                name="pnr"
-                value={formData.pnr}
-                onChange={handleChange}
-                placeholder="Enter your PNR number"
-                className="form-input"
-              />
-            </div>
+          <form onSubmit={handleRegister} className="mt-8 space-y-6 bg-white p-8 rounded-xl shadow-lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Enter your full name"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all duration-150"
+                />
+              </div>
 
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Enter your email"
-                className="form-input"
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">PNR Number</label>
+                <input
+                  type="text"
+                  name="pnr"
+                  value={formData.pnr}
+                  onChange={handleChange}
+                  placeholder="Enter your PNR number"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all duration-150"
+                />
+              </div>
 
-            <div className="form-group">
-              <label>{LABELS.GENDER}</label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                className="form-input"
-              >
-                <option value="">Select Gender</option>
-                {GENDERS.map((g) => (
-                  <option key={g.value} value={g.value}>
-                    {g.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all duration-150"
+                />
+              </div>
 
-            <div className="form-group">
-              <label>College Year</label>
-              <select
-                name="year"
-                value={formData.year}
-                onChange={handleChange}
-                className="form-input"
-              >
-                <option value="">Select Year</option>
-                {COLLEGE_YEARS.map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{LABELS.GENDER}</label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all duration-150 bg-white"
+                >
+                  <option value="">Select Gender</option>
+                  {GENDERS.map((g) => (
+                    <option key={g.value} value={g.value}>
+                      {g.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="form-group">
-              <label>{LABELS.PASSWORD}</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter password"
-                className="form-input"
-              />
-              {passwordErrors.length > 0 && (
-                <div className="password-requirements">
-                  <p className="req-title">Password must include:</p>
-                  <ul>
-                    {passwordErrors.map((error, idx) => (
-                      <li key={idx} className="req-error">
-                        {error}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">College Year</label>
+                <select
+                  name="year"
+                  value={formData.year}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all duration-150 bg-white"
+                >
+                  <option value="">Select Year</option>
+                  {COLLEGE_YEARS.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="form-group">
-              <label>{LABELS.CONFIRM_PASSWORD}</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirm password"
-                className="form-input"
-              />
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">{LABELS.PASSWORD}</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter password"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all duration-150"
+                />
+                {passwordErrors.length > 0 && (
+                  <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-sm font-medium text-yellow-800 mb-1">Password must include:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      {passwordErrors.map((error, idx) => (
+                        <li key={idx} className="text-sm text-yellow-700">
+                          {error}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">{LABELS.CONFIRM_PASSWORD}</label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Confirm password"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all duration-150"
+                />
+              </div>
             </div>
 
             <button
               type="submit"
-              className="btn btn-primary"
+              className="w-full py-3 px-4 bg-primary hover:bg-primary-hover text-white font-semibold rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
               disabled={isSubmitDisabled}
             >
               {loading ? 'Registering...' : LABELS.REGISTER}
             </button>
-          </form>
 
-          <div className="auth-footer">
-            <p>
-              Already have an account?{' '}
-              <Link to={ROUTES.SIGNIN} className="link">
-                {LABELS.SIGN_IN}
-              </Link>
-            </p>
-          </div>
+            <div className="text-center pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-600">
+                Already have an account?{' '}
+                <Link to={ROUTES.SIGNIN} className="font-medium text-primary hover:text-primary-hover transition-colors">
+                  {LABELS.SIGN_IN}
+                </Link>
+              </p>
+            </div>
+          </form>
         </div>
       </div>
     </Layout>

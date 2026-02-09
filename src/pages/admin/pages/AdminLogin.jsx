@@ -7,7 +7,6 @@ import { adminAuthAPI } from '../../../lib/api';
 import { cacheService } from '../../../lib/services/cacheService';
 import { tokenService } from '../../../lib/services/tokenService';
 import Layout from '../../../layout/Layout';
-import '../../../styles/admin-auth.css';
 
 const AdminLogin = () => {
   const [adminId, setAdminId] = useState('');
@@ -85,49 +84,68 @@ const AdminLogin = () => {
 
   return (
     <Layout>
-      <div className="admin-auth-container">
-        <div className="admin-auth-card">
-          <h2>Admin Login</h2>
-          <form onSubmit={handleLogin}>
-            {error && <div className="error-message">{error}</div>}
-
-            <div className="form-group">
-              <label htmlFor="adminId">Admin ID</label>
-              <input
-                type="text"
-                id="adminId"
-                value={adminId}
-                onChange={(e) => setAdminId(e.target.value)}
-                placeholder="Enter your Admin ID"
-                disabled={loading}
-              />
+      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-50 to-blue-50">
+        <div className="max-w-md w-full space-y-8">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-600 rounded-full mb-4">
+              <span className="text-3xl">👤</span>
             </div>
+            <h2 className="text-3xl font-bold text-gray-900">Admin Login</h2>
+            <p className="mt-2 text-sm text-gray-600">Access the admin dashboard</p>
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+          <div className="bg-white p-8 rounded-xl shadow-xl">
+            {error && (
+              <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div>
+                <label htmlFor="adminId" className="block text-sm font-medium text-gray-700 mb-2">Admin ID</label>
+                <input
+                  type="text"
+                  id="adminId"
+                  value={adminId}
+                  onChange={(e) => setAdminId(e.target.value)}
+                  placeholder="Enter your Admin ID"
+                  disabled={loading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all duration-150 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  disabled={loading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all duration-150 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                 disabled={loading}
-              />
+              >
+                {loading ? 'Logging in...' : 'Login'}
+              </button>
+            </form>
+
+            <div className="mt-6 text-center pt-6 border-t border-gray-200">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{' '}
+                <Link to="/admin/signup" className="font-medium text-purple-600 hover:text-purple-700 transition-colors">
+                  Sign up as Admin
+                </Link>
+              </p>
             </div>
-
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={loading}
-            >
-              {loading ? 'Logging in...' : 'Login'}
-            </button>
-          </form>
-
-          <p className="auth-link">
-            Don't have an account?{' '}
-            <Link to="/admin/signup">Sign up as Admin</Link>
-          </p>
+          </div>
         </div>
       </div>
     </Layout>

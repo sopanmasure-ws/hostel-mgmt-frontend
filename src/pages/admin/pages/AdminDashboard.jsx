@@ -7,7 +7,6 @@ import { adminHostelAPI } from '../../../lib/api';
 import { cacheService } from '../../../lib/services/cacheService';
 import Pagination from '../../../component/Pagination';
 import Layout from '../../../layout/Layout';
-import '../../../styles/admin-dashboard.css';
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
@@ -87,8 +86,11 @@ const AdminDashboard = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="admin-dashboard">
-          <div className="loading">Loading your hostels...</div>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="inline-block w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-4 text-gray-600">Loading your hostels...</p>
+          </div>
         </div>
       </Layout>
     );
@@ -96,82 +98,110 @@ const AdminDashboard = () => {
 
   return (
     <Layout>
-      <div className="admin-dashboard">
-        <div className="admin-header">
-          <div className="admin-welcome">
-            <h1>Admin Dashboard</h1>
-            <p>Welcome, {adminAuth.admin?.name || 'Admin'}</p>
-          </div>
-          <div className="admin-actions">
-            <button className="btn btn-secondary" onClick={handleLogout}>
-              Logout
-            </button>
-          </div>
-        </div>
-
-        <div className="dashboard-stats">
-          <div className="stat-card">
-            <h3>{adminHostels.length}</h3>
-            <p>Hostels Managed</p>
-          </div>
-          <div className="stat-card">
-            <h3>{adminHostels.reduce((sum, h) => sum + h.capacity, 0)}</h3>
-            <p>Total Rooms</p>
-          </div>
-          <div className="stat-card">
-            <h3>{adminHostels.reduce((sum, h) => sum + h.availableRooms, 0)}</h3>
-            <p>Available Rooms</p>
-          </div>
-          <div className="stat-card">
-            <h3>{adminHostels.reduce((sum, h) => sum + h.pendingApplications, 0)}</h3>
-            <p>Pending Applications</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl shadow-lg p-6 mb-8 text-white">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+              <p className="text-purple-100 mt-1">Welcome, {adminAuth.admin?.name || 'Admin'}</p>
+            </div>
+            <div>
+              <button 
+                className="px-6 py-2 bg-white text-purple-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-150 shadow-md" 
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="hostels-section">
-          <h2>Your Hostels</h2>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center gap-4">
+              <div className="text-4xl">🏨</div>
+              <div>
+                <h3 className="text-3xl font-bold text-gray-900">{adminHostels.length}</h3>
+                <p className="text-sm text-gray-600">Hostels Managed</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center gap-4">
+              <div className="text-4xl">🛏️</div>
+              <div>
+                <h3 className="text-3xl font-bold text-gray-900">{adminHostels.reduce((sum, h) => sum + h.capacity, 0)}</h3>
+                <p className="text-sm text-gray-600">Total Rooms</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center gap-4">
+              <div className="text-4xl">✅</div>
+              <div>
+                <h3 className="text-3xl font-bold text-green-600">{adminHostels.reduce((sum, h) => sum + h.availableRooms, 0)}</h3>
+                <p className="text-sm text-gray-600">Available Rooms</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center gap-4">
+              <div className="text-4xl">📋</div>
+              <div>
+                <h3 className="text-3xl font-bold text-orange-600">{adminHostels.reduce((sum, h) => sum + h.pendingApplications, 0)}</h3>
+                <p className="text-sm text-gray-600">Pending Applications</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Hostels Section */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Hostels</h2>
           {adminHostels.length === 0 ? (
-            <div className="no-data">
-              <p>You are not managing any hostels yet.</p>
+            <div className="bg-white rounded-lg shadow-md p-12 text-center">
+              <p className="text-gray-600">You are not managing any hostels yet.</p>
             </div>
           ) : (
             <>
-              <div className="hostels-grid">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {pagedHostels.map((hostel) => (
-                <div key={hostel.id} className="hostel-card">
-                  <div className="hostel-image">
-                    <img src={hostel.image} alt={hostel.name} />
+                <div key={hostel.id} className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                  <div className="h-48 overflow-hidden bg-gray-200">
+                    <img src={hostel.image} alt={hostel.name} className="w-full h-full object-cover" />
                   </div>
-                  <div className="hostel-info">
-                    <h3>{hostel.name}</h3>
-                    <p className="location">{hostel.location}</p>
-                    <div className="hostel-stats">
-                      <div className="stat">
-                        <span className="label">Total Rooms:</span>
-                        <span className="value">{hostel.capacity}</span>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{hostel.name}</h3>
+                    <p className="text-sm text-gray-600 mb-4">📍 {hostel.location}</p>
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      <div className="bg-gray-50 p-3 rounded">
+                        <span className="text-xs text-gray-600 block">Total Rooms</span>
+                        <span className="text-lg font-bold text-gray-900">{hostel.capacity}</span>
                       </div>
-                      <div className="stat">
-                        <span className="label">Filled:</span>
-                        <span className="value filled">{hostel.capacity - hostel.availableRooms}</span>
+                      <div className="bg-red-50 p-3 rounded">
+                        <span className="text-xs text-gray-600 block">Filled</span>
+                        <span className="text-lg font-bold text-red-600">{hostel.capacity - hostel.availableRooms}</span>
                       </div>
-                      <div className="stat">
-                        <span className="label">Available:</span>
-                        <span className="value available">{hostel.availableRooms}</span>
+                      <div className="bg-green-50 p-3 rounded">
+                        <span className="text-xs text-gray-600 block">Available</span>
+                        <span className="text-lg font-bold text-green-600">{hostel.availableRooms}</span>
                       </div>
-                      <div className="stat">
-                        <span className="label">Pending Apps:</span>
-                        <span className="value pending">{hostel.pendingApplications}</span>
+                      <div className="bg-orange-50 p-3 rounded">
+                        <span className="text-xs text-gray-600 block">Pending</span>
+                        <span className="text-lg font-bold text-orange-600">{hostel.pendingApplications}</span>
                       </div>
                     </div>
-                    <div className="hostel-actions">
+                    <div className="space-y-2">
                       <button
-                        className="btn btn-primary"
+                        className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors duration-150"
                         onClick={() => handleViewHostel(hostel)}
                       >
                         Manage Applications
                       </button>
                       <button
-                        className="btn btn-secondary"
+                        className="w-full py-2 px-4 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors duration-150"
                         onClick={() => navigate(`/admin/hostel/${hostel._id}/inventory`)}
                       >
                         View Inventory

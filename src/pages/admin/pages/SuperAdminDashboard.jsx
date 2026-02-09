@@ -1,14 +1,12 @@
 /* eslint-disable no-constant-binary-expression */
 import React, { useState, useContext, useEffect, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { NotificationContext } from '../../../component/NotificationContext';
 import { superAdminAPI, adminRoomAPI, apiTransformers, errorHandlers } from '../../../lib/api';
 import { cacheService } from '../../../lib/services/cacheService';
 import Pagination from '../../../component/Pagination';
 import Layout from '../../../layout/Layout';
-import '../../../styles/superadmin-dashboard.css';
-import '../../../styles/modal.css';
 
 /**
  * Super Admin Dashboard Component with Detailed Views
@@ -16,7 +14,6 @@ import '../../../styles/modal.css';
  * API Reference: GET /api/superadmin/dashboard/detailed
  */
 const SuperAdminDashboard = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { adminAuth } = useSelector((state) => state);
   const { showNotification } = useContext(NotificationContext);
@@ -296,13 +293,6 @@ const SuperAdminDashboard = () => {
       .finally(() => {
         setRoomStatusUpdatingId(null);
       });
-  };
-
-  const handleLogout = () => {
-    dispatch({ type: 'adminAuth/adminLogout' });
-    cacheService.remove('superadmin_dashboard_detailed', 'local');
-    navigate('/admin/login');
-    showNotification('Logged out successfully', 'success');
   };
 
   const openModal = (modalType) => {
@@ -1387,8 +1377,11 @@ const SuperAdminDashboard = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="superadmin-dashboard">
-          <div className="loading">Loading dashboard...</div>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="inline-block w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-4 text-gray-600">Loading dashboard...</p>
+          </div>
         </div>
       </Layout>
     );
@@ -1397,8 +1390,10 @@ const SuperAdminDashboard = () => {
   if (!dashboardData) {
     return (
       <Layout>
-        <div className="superadmin-dashboard">
-          <div className="error">Failed to load dashboard data</div>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg">
+            Failed to load dashboard data
+          </div>
         </div>
       </Layout>
     );
@@ -1422,108 +1417,168 @@ const SuperAdminDashboard = () => {
 
   return (
     <Layout>
-      <div className="superadmin-dashboard">
-        <div className="dashboard-header">
-          <div>
-            <h1>Super Admin Dashboard</h1>
-            <p>Comprehensive overview and management</p>
-          </div>
-          <div className="header-actions">
-            <button className="btn btn-secondary" onClick={() => navigate('/superadmin/students')}>
-              Manage Students
-            </button>
-            <button className="btn btn-secondary" onClick={() => navigate('/superadmin/hostels')}>
-              Manage Hostels
-            </button>
-            <button className="btn btn-secondary" onClick={() => navigate('/superadmin/admins')}>
-              Manage Admins
-            </button>
-            <button className="btn btn-danger" onClick={handleLogout}>
-              Logout
-            </button>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-xl shadow-lg p-6 mb-8 text-white">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold">Super Admin Dashboard</h1>
+              <p className="text-purple-100 mt-1">Comprehensive overview and management</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button 
+                className="px-4 py-2 bg-white text-purple-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-150 text-sm" 
+                onClick={() => navigate('/superadmin/students')}
+              >
+                Manage Students
+              </button>
+              <button 
+                className="px-4 py-2 bg-white text-purple-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-150 text-sm" 
+                onClick={() => navigate('/superadmin/hostels')}
+              >
+                Manage Hostels
+              </button>
+              <button 
+                className="px-4 py-2 bg-white text-purple-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-150 text-sm" 
+                onClick={() => navigate('/superadmin/admins')}
+              >
+                Manage Admins
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="stats-grid">
-          <div className="stat-card clickable" onClick={() => openModal('students')}>
-            <div className="stat-icon students">👥</div>
-            <div className="stat-info">
-              <h3>{dashboardData.totalStudentsCount || 0}</h3>
-              <p>Total Students</p>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
+          <div 
+            className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 cursor-pointer border-2 border-transparent hover:border-purple-500 group"
+            onClick={() => openModal('students')}
+          >
+            <div className="flex items-center gap-4">
+              <div className="text-4xl group-hover:scale-110 transition-transform duration-300">👥</div>
+              <div>
+                <h3 className="text-3xl font-bold text-gray-900">{dashboardData.totalStudentsCount || 0}</h3>
+                <p className="text-sm text-gray-600">Total Students</p>
+              </div>
             </div>
           </div>
 
-          <div className="stat-card clickable" onClick={() => openModal('admins')}>
-            <div className="stat-icon admins">👨‍💼</div>
-            <div className="stat-info">
-              <h3>{dashboardData.totalAdminsCount || 0}</h3>
-              <p>Total Admins</p>
+          <div 
+            className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 cursor-pointer border-2 border-transparent hover:border-purple-500 group"
+            onClick={() => openModal('admins')}
+          >
+            <div className="flex items-center gap-4">
+              <div className="text-4xl group-hover:scale-110 transition-transform duration-300">👨‍💼</div>
+              <div>
+                <h3 className="text-3xl font-bold text-gray-900">{dashboardData.totalAdminsCount || 0}</h3>
+                <p className="text-sm text-gray-600">Total Admins</p>
+              </div>
             </div>
           </div>
 
-          <div className="stat-card clickable" onClick={() => openModal('hostels')}>
-            <div className="stat-icon hostels">🏢</div>
-            <div className="stat-info">
-              <h3>{dashboardData.totalHostelsCount || 0}</h3>
-              <p>Total Hostels</p>
+          <div 
+            className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 cursor-pointer border-2 border-transparent hover:border-purple-500 group"
+            onClick={() => openModal('hostels')}
+          >
+            <div className="flex items-center gap-4">
+              <div className="text-4xl group-hover:scale-110 transition-transform duration-300">🏢</div>
+              <div>
+                <h3 className="text-3xl font-bold text-gray-900">{dashboardData.totalHostelsCount || 0}</h3>
+                <p className="text-sm text-gray-600">Total Hostels</p>
+              </div>
             </div>
           </div>
 
-          <div className="stat-card clickable" onClick={() => openModal('rooms')}>
-            <div className="stat-icon rooms">🚪</div>
-            <div className="stat-info">
-              <h3>{dashboardData.totalRoomsCount || 0}</h3>
-              <p>Total Rooms</p>
+          <div 
+            className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 cursor-pointer border-2 border-transparent hover:border-purple-500 group"
+            onClick={() => openModal('rooms')}
+          >
+            <div className="flex items-center gap-4">
+              <div className="text-4xl group-hover:scale-110 transition-transform duration-300">🚪</div>
+              <div>
+                <h3 className="text-3xl font-bold text-gray-900">{dashboardData.totalRoomsCount || 0}</h3>
+                <p className="text-sm text-gray-600">Total Rooms</p>
+              </div>
             </div>
           </div>
 
-          <div className="stat-card clickable" onClick={() => openModal('occupied-rooms')}>
-            <div className="stat-icon occupied">🔴</div>
-            <div className="stat-info">
-              <h3>{dashboardData.occupiedRoomsCount || 0}</h3>
-              <p>Occupied Rooms</p>
+          <div 
+            className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 cursor-pointer border-2 border-transparent hover:border-red-500 group"
+            onClick={() => openModal('occupied-rooms')}
+          >
+            <div className="flex items-center gap-4">
+              <div className="text-4xl group-hover:scale-110 transition-transform duration-300">🔴</div>
+              <div>
+                <h3 className="text-3xl font-bold text-red-600">{dashboardData.occupiedRoomsCount || 0}</h3>
+                <p className="text-sm text-gray-600">Occupied Rooms</p>
+              </div>
             </div>
           </div>
 
-          <div className="stat-card clickable" onClick={() => openModal('pending-applications')}>
-            <div className="stat-icon pending">⏳</div>
-            <div className="stat-info">
-              <h3>{dashboardData.pendingApplicationsCount || 0}</h3>
-              <p>Pending Applications</p>
+          <div 
+            className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 cursor-pointer border-2 border-transparent hover:border-orange-500 group"
+            onClick={() => openModal('pending-applications')}
+          >
+            <div className="flex items-center gap-4">
+              <div className="text-4xl group-hover:scale-110 transition-transform duration-300">⏳</div>
+              <div>
+                <h3 className="text-3xl font-bold text-orange-600">{dashboardData.pendingApplicationsCount || 0}</h3>
+                <p className="text-sm text-gray-600">Pending Applications</p>
+              </div>
             </div>
           </div>
 
-          <div className="stat-card clickable" onClick={() => openModal('approved-applications')}>
-            <div className="stat-icon approved">✅</div>
-            <div className="stat-info">
-              <h3>{dashboardData.approvedApplicationsCount || 0}</h3>
-              <p>Approved Applications</p>
+          <div 
+            className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 cursor-pointer border-2 border-transparent hover:border-green-500 group"
+            onClick={() => openModal('approved-applications')}
+          >
+            <div className="flex items-center gap-4">
+              <div className="text-4xl group-hover:scale-110 transition-transform duration-300">✅</div>
+              <div>
+                <h3 className="text-3xl font-bold text-green-600">{dashboardData.approvedApplicationsCount || 0}</h3>
+                <p className="text-sm text-gray-600">Approved Applications</p>
+              </div>
             </div>
           </div>
 
-          <div className="stat-card clickable" onClick={() => openModal('rejected-applications')}>
-            <div className="stat-icon rejected">❌</div>
-            <div className="stat-info">
-              <h3>{dashboardData.rejectedApplicationsCount || 0}</h3>
-              <p>Rejected Applications</p>
+          <div 
+            className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 cursor-pointer border-2 border-transparent hover:border-red-500 group"
+            onClick={() => openModal('rejected-applications')}
+          >
+            <div className="flex items-center gap-4">
+              <div className="text-4xl group-hover:scale-110 transition-transform duration-300">❌</div>
+              <div>
+                <h3 className="text-3xl font-bold text-red-600">{dashboardData.rejectedApplicationsCount || 0}</h3>
+                <p className="text-sm text-gray-600">Rejected Applications</p>
+              </div>
             </div>
           </div>
 
-          <div className="stat-card clickable" onClick={() => openModal('blacklisted')}>
-            <div className="stat-icon blacklisted">🔒</div>
-            <div className="stat-info">
-              <h3>{dashboardData.blacklistedStudentsCount || 0}</h3>
-              <p>Blacklisted Students</p>
+          <div 
+            className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 cursor-pointer border-2 border-transparent hover:border-gray-700 group"
+            onClick={() => openModal('blacklisted')}
+          >
+            <div className="flex items-center gap-4">
+              <div className="text-4xl group-hover:scale-110 transition-transform duration-300">🔒</div>
+              <div>
+                <h3 className="text-3xl font-bold text-gray-900">{dashboardData.blacklistedStudentsCount || 0}</h3>
+                <p className="text-sm text-gray-600">Blacklisted Students</p>
+              </div>
             </div>
           </div>
         </div>
 
         {activeModal && (
-          <div className="modal-overlay" onClick={closeModal}>
-            <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-header">
-                <h2>{getModalTitle()}</h2>
-                <button className="close-btn" onClick={closeModal}>×</button>
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={closeModal}>
+            <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 flex justify-between items-center">
+                <h2 className="text-2xl font-bold">{getModalTitle()}</h2>
+                <button 
+                  className="text-white hover:text-gray-200 text-3xl font-bold w-10 h-10 flex items-center justify-center rounded-full hover:bg-white hover:bg-opacity-20 transition-colors" 
+                  onClick={closeModal}
+                >
+                  ×
+                </button>
               </div>
               
               <div className="modal-filters">

@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import '../styles/pagination.css';
 
 function clamp(n, min, max) {
   return Math.min(max, Math.max(min, n));
@@ -47,15 +46,15 @@ export default function Pagination({
   const canNext = safePage < totalPages;
 
   return (
-    <div className={`pagination ${className}`.trim()}>
-      <div className="pagination__meta">
-        Showing <strong>{start}</strong>-<strong>{end}</strong> of <strong>{totalItems}</strong>
+    <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white rounded-lg shadow-sm border border-gray-200 ${className}`.trim()}>
+      <div className="text-sm text-gray-600">
+        Showing <strong className="font-semibold text-gray-900">{start}</strong>-<strong className="font-semibold text-gray-900">{end}</strong> of <strong className="font-semibold text-gray-900">{totalItems}</strong>
       </div>
 
-      <div className="pagination__controls">
+      <div className="flex items-center gap-1">
         <button
           type="button"
-          className="pagination__btn"
+          className="px-3 py-1.5 min-w-[70px] text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors duration-150"
           disabled={!canPrev}
           onClick={() => onPageChange(safePage - 1)}
         >
@@ -64,14 +63,18 @@ export default function Pagination({
 
         {model.map((item, idx) =>
           item === '…' ? (
-            <span key={`dots-${idx}`} className="pagination__dots">
+            <span key={`dots-${idx}`} className="px-2 text-gray-500">
               …
             </span>
           ) : (
             <button
               key={item}
               type="button"
-              className={`pagination__btn ${item === safePage ? 'active' : ''}`}
+              className={`px-3 py-1.5 min-w-[40px] text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 transition-colors duration-150 ${
+                item === safePage
+                  ? 'bg-primary text-white hover:bg-primary-hover'
+                  : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+              }`}
               onClick={() => onPageChange(item)}
             >
               {item}
@@ -81,7 +84,7 @@ export default function Pagination({
 
         <button
           type="button"
-          className="pagination__btn"
+          className="px-3 py-1.5 min-w-[70px] text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors duration-150"
           disabled={!canNext}
           onClick={() => onPageChange(safePage + 1)}
         >
@@ -90,11 +93,11 @@ export default function Pagination({
       </div>
 
       {typeof onPageSizeChange === 'function' && (
-        <div className="pagination__size">
-          <label className="pagination__sizeLabel">
-            Per page:{' '}
+        <div className="flex items-center gap-2">
+          <label className="text-sm text-gray-600 flex items-center gap-2">
+            Per page:
             <select
-              className="pagination__select"
+              className="px-2 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-150 cursor-pointer"
               value={pageSize}
               onChange={(e) => onPageSizeChange(parseInt(e.target.value, 10))}
             >

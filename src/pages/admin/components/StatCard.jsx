@@ -1,5 +1,4 @@
 import React from 'react';
-import '../../styles/stat-card.css';
 
 /**
  * Reusable Stat Card Component
@@ -20,18 +19,22 @@ const StatCard = ({
 }) => {
   return (
     <div 
-      className={`stat-card ${onClick ? 'clickable' : ''} ${className}`}
+      className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6 ${
+        onClick ? 'cursor-pointer hover:border-primary border-2 border-transparent' : ''
+      } ${className}`}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
-      <div className={`stat-icon ${className}`}>
-        {icon}
-      </div>
-      <div className="stat-info">
-        <h3>{value}</h3>
-        <p>{title}</p>
-        {trend && <span className="stat-trend">{trend}</span>}
+      <div className="flex items-center gap-4">
+        <div className="text-4xl">
+          {icon}
+        </div>
+        <div className="flex-1">
+          <h3 className="text-3xl font-bold text-gray-900">{value}</h3>
+          <p className="text-sm text-gray-600 mt-1">{title}</p>
+          {trend && <span className="text-xs text-green-600 font-medium mt-1 inline-block">{trend}</span>}
+        </div>
       </div>
     </div>
   );

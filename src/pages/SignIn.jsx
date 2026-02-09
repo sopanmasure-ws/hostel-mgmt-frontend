@@ -7,7 +7,6 @@ import { authAPI } from '../lib/api';
 import { tokenService } from '../lib/services/tokenService';
 import { ROUTES, LABELS, DELAYS, ERROR_MESSAGES } from '../config';
 import Layout from '../layout/Layout';
-import '../styles/auth.css';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -79,48 +78,61 @@ const SignIn = () => {
 
   return (
     <Layout>
-      <div className="auth-container">
-        <div className="auth-form-wrapper">
-          <h2>{LABELS.STUDENT_SIGNIN}</h2>
+      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-gray-900">{LABELS.STUDENT_SIGNIN}</h2>
+            <p className="mt-2 text-sm text-gray-600">Sign in to access your hostel dashboard</p>
+          </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
 
-          <form onSubmit={handleSignIn} className="auth-form">
-            <div className="form-group">
-              <label>{LABELS.EMAIL_OR_PNR}</label>
-              <input
-                type="text"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email or PNR"
-                className="form-input"
-              />
+          <form onSubmit={handleSignIn} className="mt-8 space-y-6 bg-white p-8 rounded-xl shadow-lg">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{LABELS.EMAIL_OR_PNR}</label>
+                <input
+                  type="text"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email or PNR"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all duration-150"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{LABELS.PASSWORD}</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all duration-150"
+                />
+              </div>
             </div>
 
-            <div className="form-group">
-              <label>{LABELS.PASSWORD}</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                className="form-input"
-              />
-            </div>
-
-            <button type="submit" className="btn btn-primary" disabled={loading}>
+            <button 
+              type="submit" 
+              className="w-full py-3 px-4 bg-primary hover:bg-primary-hover text-white font-semibold rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg" 
+              disabled={loading}
+            >
               {loading ? 'Signing In...' : LABELS.SIGN_IN}
             </button>
-          </form>
 
-          <div className="auth-footer">
-            <p>
-              Don't have an account?{' '}
-              <Link to={ROUTES.REGISTER} className="link">
-                Register here
-              </Link>
-            </p>
-          </div>
+            <div className="text-center pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{' '}
+                <Link to={ROUTES.REGISTER} className="font-medium text-primary hover:text-primary-hover transition-colors">
+                  Register here
+                </Link>
+              </p>
+            </div>
+          </form>
         </div>
       </div>
     </Layout>

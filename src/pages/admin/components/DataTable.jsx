@@ -1,5 +1,4 @@
 import React from 'react';
-import '../../styles/table.css';
 
 /**
  * Reusable Data Table Component
@@ -17,37 +16,51 @@ const DataTable = ({
   emptyMessage = 'No data available'
 }) => {
   if (loading) {
-    return <div className="table-loading">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="inline-block w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="mt-2 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!data || data.length === 0) {
-    return <div className="no-data">{emptyMessage}</div>;
+    return (
+      <div className="text-center py-12 bg-gray-50 rounded-lg">
+        <p className="text-gray-600">{emptyMessage}</p>
+      </div>
+    );
   }
 
   return (
-    <div className="table-container">
-      <table className="data-table">
-        <thead>
+    <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
           <tr>
             {columns.map((column) => (
               <th 
                 key={column.key} 
                 style={column.width ? { width: column.width } : {}}
+                className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
               >
                 {column.label}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="bg-white divide-y divide-gray-200">
           {data.map((row, index) => (
             <tr 
               key={row.id || row._id || index}
               onClick={() => onRowClick && onRowClick(row)}
-              className={onRowClick ? 'clickable' : ''}
+              className={`${
+                onRowClick ? 'cursor-pointer hover:bg-gray-50 transition-colors' : ''
+              }`}
             >
               {columns.map((column) => (
-                <td key={`${row.id || index}-${column.key}`}>
+                <td key={`${row.id || index}-${column.key}`} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {column.render 
                     ? column.render(row[column.key], row) 
                     : row[column.key] || 'N/A'}

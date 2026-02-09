@@ -1,5 +1,4 @@
 import React from 'react';
-import '../../styles/modal.css';
 
 /**
  * Reusable Modal Component
@@ -28,16 +27,22 @@ const GenericModal = ({
     }
   };
 
+  const sizeClasses = {
+    small: 'max-w-md',
+    medium: 'max-w-2xl',
+    large: 'max-w-4xl'
+  };
+
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={handleOverlayClick}>
       <div 
-        className={`modal-content ${size}`} 
+        className={`bg-white rounded-xl shadow-2xl ${sizeClasses[size]} w-full max-h-[90vh] overflow-hidden`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="modal-header">
-          <h2>{title}</h2>
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 flex justify-between items-center">
+          <h2 className="text-2xl font-bold">{title}</h2>
           <button 
-            className="close-btn" 
+            className="text-white hover:text-gray-200 text-3xl font-bold w-10 h-10 flex items-center justify-center rounded-full hover:bg-white hover:bg-opacity-20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
             onClick={onClose}
             disabled={loading}
             aria-label="Close modal"
@@ -46,12 +51,12 @@ const GenericModal = ({
           </button>
         </div>
         
-        <div className="modal-body">
+        <div className="p-6 overflow-y-auto" style={{maxHeight: 'calc(90vh - 180px)'}}>
           {children}
         </div>
         
         {footer && (
-          <div className="modal-footer">
+          <div className="p-6 border-t border-gray-200 bg-gray-50">
             {footer}
           </div>
         )}

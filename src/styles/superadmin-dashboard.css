@@ -261,7 +261,13 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {\n  .stats-grid {\n    grid-template-columns: repeat(2, 1fr);\n  }\n}\n\n@media (max-width: 1024px) {
+@media (max-width: 1200px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
   .superadmin-header {
     padding: 20px;
   }

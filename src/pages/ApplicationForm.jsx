@@ -5,7 +5,6 @@ import { NotificationContext } from '../component/NotificationContext';
 import { BRANCHES, CASTE_CATEGORIES } from '../util/data';
 import { applicationAPI } from '../lib/api';
 import Layout from '../layout/Layout';
-import '../styles/application-form.css';
 
 const ApplicationForm = () => {
   const navigate = useNavigate();
@@ -203,8 +202,8 @@ const ApplicationForm = () => {
   if (!hostel) {
     return (
       <Layout>
-        <div className="application-form-container">
-          <div className="error-message">Hostel not found. Redirecting...</div>
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">Hostel not found. Redirecting...</div>
         </div>
       </Layout>
     );
@@ -213,8 +212,8 @@ const ApplicationForm = () => {
   if (!formReady) {
     return (
       <Layout>
-        <div className="application-form-container">
-          <div className="loading-message">Checking your application status...</div>
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg">Checking your application status...</div>
         </div>
       </Layout>
     );
@@ -222,70 +221,72 @@ const ApplicationForm = () => {
 
   return (
     <Layout>
-      <div className="application-form-container">
-        <div className="form-header">
-          <h2>Hostel Application Form</h2>
-          <p>Applying for: <strong>{hostel.name}</strong></p>
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+          <div className="bg-gradient-to-r from-primary via-secondary to-tertiary text-white p-6">
+            <h2 className="text-2xl font-bold">Hostel Application Form</h2>
+            <p className="mt-2">Applying for: <strong>{hostel.name}</strong></p>
+          </div>
         </div>
 
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
+        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">{error}</div>}
+        {success && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">{success}</div>}
 
-        <form onSubmit={handleSubmit} className="application-form">
-          <div className="form-section">
-            <h3>Personal Information</h3>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Name</label>
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-6 space-y-6">
+          <div className="border-b border-gray-200 pb-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Personal Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
                 <input
                   type="text"
                   value={user?.name}
                   disabled
-                  className="form-input disabled"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
                 />
               </div>
-              <div className="form-group">
-                <label>PNR Number</label>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">PNR Number</label>
                 <input
                   type="text"
                   value={user?.pnr}
                   disabled
-                  className="form-input disabled"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
                 />
               </div>
             </div>
 
-            <div className="form-group">
-              <label>Email</label>
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
               <input
                 type="email"
                 value={user?.email}
                 disabled
-                className="form-input disabled"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
               />
             </div>
           </div>
 
-          <div className="form-section">
-            <h3>Academic Information</h3>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Year in College</label>
+          <div className="border-b border-gray-200 pb-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Academic Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Year in College</label>
                 <input
                   type="text"
                   value={user?.year || 'N/A'}
                   disabled
-                  className="form-input disabled"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
                 />
               </div>
 
-              <div className="form-group">
-                <label>Branch *</label>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Branch *</label>
                 <select
                   name="branch"
                   value={formData.branch}
                   onChange={handleChange}
-                  className="form-input"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
                 >
                   <option value="">Select Branch</option>
                   {BRANCHES.map((branch) => (
@@ -298,27 +299,27 @@ const ApplicationForm = () => {
             </div>
           </div>
 
-          <div className="form-section">
-            <h3>Other Details</h3>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Date of Birth *</label>
+          <div className="border-b border-gray-200 pb-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Other Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth *</label>
                 <input
                   type="date"
                   name="dob"
                   value={formData.dob}
                   onChange={handleChange}
-                  className="form-input"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
                 />
               </div>
 
-              <div className="form-group">
-                <label>Caste *</label>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Caste *</label>
                 <select
                   name="caste"
                   value={formData.caste}
                   onChange={handleChange}
-                  className="form-input"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
                 >
                   <option value="">Select Caste Category</option>
                   {CASTE_CATEGORIES.map((caste) => (
@@ -331,47 +332,53 @@ const ApplicationForm = () => {
             </div>
           </div>
 
-          <div className="form-section">
-            <h3>Document Upload (PDF Only)</h3>
-            <div className="form-group">
-              <label>Aadhar Card (PDF) *</label>
-              <input
-                type="file"
-                name="aadharCard"
-                accept=".pdf"
-                onChange={handleFileChange}
-                className="form-input"
-              />
-              {formData.aadharCard && (
-                <p className="file-selected">✓ {formData.aadharCard.name}</p>
-              )}
-            </div>
+          <div className="pb-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Document Upload (PDF Only)</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Aadhar Card (PDF) *</label>
+                <input
+                  type="file"
+                  name="aadharCard"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-700"
+                />
+                {formData.aadharCard && (
+                  <p className="text-green-600 text-sm mt-2">✓ {formData.aadharCard.name}</p>
+                )}
+              </div>
 
-            <div className="form-group">
-              <label>College Admission Receipt (PDF) *</label>
-              <input
-                type="file"
-                name="admissionReceipt"
-                accept=".pdf"
-                onChange={handleFileChange}
-                className="form-input"
-              />
-              {formData.admissionReceipt && (
-                <p className="file-selected">✓ {formData.admissionReceipt.name}</p>
-              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">College Admission Receipt (PDF) *</label>
+                <input
+                  type="file"
+                  name="admissionReceipt"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-700"
+                />
+                {formData.admissionReceipt && (
+                  <p className="text-green-600 text-sm mt-2">✓ {formData.admissionReceipt.name}</p>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="form-actions">
+          <div className="flex gap-4 pt-6 border-t border-gray-200">
             <button
               type="button"
-              className="btn btn-secondary"
+              className="flex-1 py-3 px-4 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => navigate('/book-hostel')}
               disabled={loading}
             >
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
+            <button 
+              type="submit" 
+              className="flex-1 py-3 px-4 bg-primary hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+              disabled={loading}
+            >
               {loading ? 'Submitting...' : 'Submit Application'}
             </button>
           </div>
