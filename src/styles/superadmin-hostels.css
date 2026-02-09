@@ -528,3 +528,69 @@
     font-size: 0.7rem;
   }
 }
+/* Assign Student Modal Styles */
+.loading-applications {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.no-pending-applications {
+  text-align: center;
+  padding: 30px 20px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+}
+
+.no-data-message {
+  margin: 0;
+  color: #999;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.applications-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background-color: white;
+}
+
+.applications-select:focus {
+  outline: none;
+  border-color: #8fa8ff;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.application-details {
+  background-color: #f0f5ff;
+  border-left: 4px solid #8fa8ff;
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.application-details p {
+  margin: 8px 0;
+  color: #333;
+}
+
+.application-details strong {
+  color: #444;
+  font-weight: 600;
+}
+
+.btn-assign-student {
+  background-color: #10b981;
+  border-color: #10b981;
+  color: white;
+}
+
+.btn-assign-student:hover {
+  background-color: #059669;
+  border-color: #059669;
+}
