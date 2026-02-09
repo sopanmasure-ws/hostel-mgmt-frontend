@@ -110,14 +110,6 @@ const AdminDashboard: React.FC = () => {
               <h1 className="text-3xl font-bold">Admin Dashboard</h1>
               <p className="text-purple-100 mt-1">Welcome, {adminAuth.admin?.name || 'Admin'}</p>
             </div>
-            <div>
-              <button 
-                className="px-6 py-2 bg-white text-purple-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-150 shadow-md" 
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
-            </div>
           </div>
         </div>
 

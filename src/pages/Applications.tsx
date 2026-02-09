@@ -175,7 +175,7 @@ const Applications: React.FC = () => {
                       </div>
                     </div>
 
-                    {application.status === 'approved' && (
+                    {application.status.toUpperCase() === 'APPROVED' && (
                       <div>
                         <h4 className="text-lg font-semibold text-green-800 mb-4">Allocation Details</h4>
 
