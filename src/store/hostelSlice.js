@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { hostelAPI } from '../lib/api';
-import { SAMPLE_APPLICATIONS } from '../util/data';
 
 export const fetchAllHostels = createAsyncThunk(
   'hostel/fetchAllHostels',
@@ -17,46 +16,18 @@ export const fetchAllHostels = createAsyncThunk(
 const initialState = {
   hostels: [],
   selectedHostel: null,
-  filteredHostels: [],
   loading: false,
   error: null,
-  applicationForm: {
-    hostelId: null,
-    year: '',
-    caste: '',
-    dob: '',
-    branch: '',
-  },
 };
 
 const hostelSlice = createSlice({
   name: 'hostel',
   initialState,
   reducers: {
-    filterHostelsByGender: (state, action) => {
-      state.filteredHostels = state.hostels.filter(
-        (hostel) => hostel.gender === action.payload
-      );
-    },
     selectHostel: (state, action) => {
       state.selectedHostel = state.hostels.find(
         (hostel) => hostel.id === action.payload
       );
-    },
-    updateApplicationForm: (state, action) => {
-      state.applicationForm = {
-        ...state.applicationForm,
-        ...action.payload,
-      };
-    },
-    resetApplicationForm: (state) => {
-      state.applicationForm = {
-        hostelId: null,
-        year: '',
-        caste: '',
-        dob: '',
-        branch: '',
-      };
     },
     setHostels: (state, action) => {
       state.hostels = action.payload;
@@ -80,10 +51,7 @@ const hostelSlice = createSlice({
 });
 
 export const {
-  filterHostelsByGender,
   selectHostel,
-  updateApplicationForm,
-  resetApplicationForm,
   setHostels,
 } = hostelSlice.actions;
 export default hostelSlice.reducer;

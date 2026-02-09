@@ -144,7 +144,7 @@ export const MOCK_CONFIG = {
 };
 
 export const CHART_COLORS = {
-  PRIMARY: '#667eea',
+  PRIMARY: '#8fa8ff',
   SUCCESS: '#4CAF50',
   WARNING: '#FF9800',
   DANGER: '#F44336',

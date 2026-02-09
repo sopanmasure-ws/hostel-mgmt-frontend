@@ -36,7 +36,7 @@
   border-radius: 12px;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #8fa8ff;
 }
 
 .stat-card.available {
@@ -54,7 +54,7 @@
 .stat-value {
   font-size: 28px;
   font-weight: 700;
-  color: #667eea;
+  color: #8fa8ff;
   margin-bottom: 5px;
 }
 
@@ -119,7 +119,7 @@
 
 .filter-group select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #8fa8ff;
 }
 
 .view-options {
@@ -140,14 +140,14 @@
 }
 
 .view-btn:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #8fa8ff;
+  color: #8fa8ff;
 }
 
 .view-btn.active {
-  background: #667eea;
+  background: #8fa8ff;
   color: white;
-  border-color: #667eea;
+  border-color: #8fa8ff;
 }
 
 .inventory-grid {
@@ -276,4 +276,95 @@
   padding: 40px;
   font-size: 18px;
   color: #666;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .admin-inventory {
+    padding: 20px;
+  }
+
+  .inventory-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .rooms-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-inventory {
+    padding: 15px;
+  }
+
+  .inventory-header {
+    padding: 20px;
+  }
+
+  .inventory-header h1 {
+    font-size: 22px;
+  }
+
+  .inventory-stats {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 15px;
+  }
+
+  .floor-section h2 {
+    font-size: 18px;
+  }
+
+  .rooms-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+  }
+
+  .room-card {
+    padding: 12px 8px;
+  }
+
+  .room-number {
+    font-size: 14px;
+  }
+
+  .room-bed-count {
+    font-size: 11px;
+  }
+
+  .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .change-status-modal .modal-content {
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-inventory {
+    padding: 10px;
+  }
+
+  .inventory-header {
+    padding: 15px;
+  }
+
+  .inventory-header h1 {
+    font-size: 20px;
+  }
+
+  .rooms-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+  }
+
+  .room-card {
+    padding: 10px 6px;
+  }
 }

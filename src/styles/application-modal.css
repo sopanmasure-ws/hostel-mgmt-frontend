@@ -81,7 +81,7 @@
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #8fa8ff;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -103,7 +103,7 @@
   background: #f8f9fa;
   padding: 15px;
   border-radius: 6px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #8fa8ff;
 }
 
 .modal-info p {

@@ -1,11 +1,11 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { NotificationContext } from '../../component/NotificationContext';
-import { adminRegisterSuccess } from '../../store/adminAuthSlice';
-import { adminAuthAPI } from '../../lib/api';
-import Layout from '../../layout/Layout';
-import '../../styles/admin-auth.css';
+import { NotificationContext } from '../../../component/NotificationContext';
+import { adminRegisterSuccess } from '../../../store/adminAuthSlice';
+import { adminAuthAPI } from '../../../lib/api';
+import Layout from '../../../layout/Layout';
+import '../../../styles/admin-auth.css';
 
 const AdminSignUp = () => {
   const [formData, setFormData] = useState({

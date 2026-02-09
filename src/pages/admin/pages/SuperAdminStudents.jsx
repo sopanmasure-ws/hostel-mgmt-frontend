@@ -1,12 +1,12 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { NotificationContext } from '../../component/NotificationContext';
-import { superAdminAPI, adminRoomAPI, adminApplicationAPI, applicationAPI, apiTransformers, requestPayloads, errorHandlers } from '../../lib/api';
-import { cacheService } from '../../lib/services/cacheService';
-import Pagination from '../../component/Pagination';
-import Layout from '../../layout/Layout';
-import '../../styles/superadmin-students.css';
+import { NotificationContext } from '../../../component/NotificationContext';
+import { superAdminAPI, adminRoomAPI, adminApplicationAPI, applicationAPI, apiTransformers, requestPayloads, errorHandlers } from '../../../lib/api';
+import { cacheService } from '../../../lib/services/cacheService';
+import Pagination from '../../../component/Pagination';
+import Layout from '../../../layout/Layout';
+import '../../../styles/superadmin-students.css';
 
 /**
  * Super Admin Students Management Component
@@ -35,6 +35,12 @@ const SuperAdminStudents = () => {
   const [modalLoading, setModalLoading] = useState(false);
   const [availableRooms, setAvailableRooms] = useState([]);
   const [loadingRooms, setLoadingRooms] = useState(false);
+  const [availableHostels, setAvailableHostels] = useState([]);
+  const [loadingHostels, setLoadingHostels] = useState(false);
+  const [changeRoomData, setChangeRoomData] = useState({
+    hostelId: '',
+    roomId: '',
+  });
 
   const [assignRoomData, setAssignRoomData] = useState({
     roomNumber: '',
@@ -45,6 +51,10 @@ const SuperAdminStudents = () => {
   const [rejectReason, setRejectReason] = useState('');
   const [blacklistReason, setBlacklistReason] = useState('');
 
+  // Track which students have been enriched to prevent infinite loops
+  const enrichedDetailsRef = useRef(new Set());
+  const enrichedAppsRef = useRef(new Set());
+
   useEffect(() => {
     if (!adminAuth.isAuthenticated || adminAuth.role !== 'superadmin') {
       navigate('/admin/login');
@@ -53,13 +63,23 @@ const SuperAdminStudents = () => {
 
     setLoading(true);
     const cacheKey = 'superadmin_all_students';
-    const cachedStudents = cacheService.get(cacheKey, 'local');
+    const cacheVersion = 'v2'; // Version to force refresh when data structure changes
+    const cachedData = cacheService.get(cacheKey, 'local');
+    
+    // Check if cache is valid and has the new structure with roomNumber
+    const isCacheValid = cachedData && 
+      cachedData.version === cacheVersion && 
+      cachedData.students && 
+      cachedData.students.length > 0;
 
-    if (cachedStudents && cachedStudents.length > 0) {
-      setStudents(cachedStudents);
+    if (isCacheValid) {
+      setStudents(cachedData.students);
       setLoading(false);
       return;
     }
+
+    // Clear old cache format
+    cacheService.remove(cacheKey, 'local');
 
     // Fetch all students from API (searchable endpoint)
     superAdminAPI
@@ -68,7 +88,7 @@ const SuperAdminStudents = () => {
         // Transform API response using data mapping utilities
         const transformedStudents = apiTransformers.transformStudentsList(response);
         setStudents(transformedStudents);
-        cacheService.set(cacheKey, transformedStudents, 10 * 60 * 1000, 'local');
+        cacheService.set(cacheKey, { version: cacheVersion, students: transformedStudents }, 10 * 60 * 1000, 'local');
       })
       .catch((err) => {
         const errorMsg = errorHandlers.parseError(err);
@@ -117,8 +137,14 @@ const SuperAdminStudents = () => {
   // Enrich paged students with currentApplication/assignedRoom from detail endpoint if missing
   useEffect(() => {
     const enrichStudents = async () => {
-      const toFetch = pagedStudents.filter((s) => !s.currentApplication);
+      const toFetch = pagedStudents.filter(
+        (s) => (!s.currentApplication || !s.currentApplication._id) && !enrichedDetailsRef.current.has(s.pnr)
+      );
       if (toFetch.length === 0) return;
+      
+      // Mark as being enriched
+      toFetch.forEach((s) => enrichedDetailsRef.current.add(s.pnr));
+      
       try {
         const updates = await Promise.all(
           toFetch.map(async (s) => {
@@ -141,6 +167,9 @@ const SuperAdminStudents = () => {
               return {
                 ...st,
                 assignedRoom: u.detail.assignedRoom || st.assignedRoom,
+                roomNumber: u.detail.roomNumber || st.roomNumber,
+                floor: u.detail.floor || st.floor,
+                hostelName: u.detail.hostelName || st.hostelName,
                 currentApplication: u.detail.currentApplication || st.currentApplication,
               };
             })
@@ -152,7 +181,7 @@ const SuperAdminStudents = () => {
     };
     enrichStudents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, filteredStudents]);
+  }, [page, pageSize]);
 
   // Helper: normalize status to lowercase
   const isPendingStatus = (status) => String(status || '').toLowerCase() === 'pending';
@@ -160,15 +189,21 @@ const SuperAdminStudents = () => {
   // Enrich paged students with application object from applicationAPI if currentApplication missing
   useEffect(() => {
     const enrichWithApplications = async () => {
-      const targets = pagedStudents.filter((s) => !s.currentApplication);
+      const targets = pagedStudents.filter(
+        (s) => (!s.currentApplication || !s.currentApplication._id) && !enrichedAppsRef.current.has(s.pnr)
+      );
       if (targets.length === 0) return;
+      
+      // Mark as being enriched
+      targets.forEach((s) => enrichedAppsRef.current.add(s.pnr));
+      
       try {
         const results = await Promise.all(
           targets.map(async (s) => {
             try {
               const cacheKey = `superadmin_student_apps_${s.pnr}`;
               const cached = cacheService.get(cacheKey, 'local');
-              if (cached) {
+              if (cached !== undefined) {
                 return { pnr: s.pnr, app: cached };
               }
               const app = await applicationAPI.getApplicationsByPNR(s.pnr);
@@ -176,6 +211,9 @@ const SuperAdminStudents = () => {
               cacheService.set(cacheKey, app, 10 * 60 * 1000, 'local');
               return { pnr: s.pnr, app };
             } catch {
+              // Cache null for 404s to prevent repeated calls
+              const cacheKey = `superadmin_student_apps_${s.pnr}`;
+              cacheService.set(cacheKey, null, 10 * 60 * 1000, 'local');
               return { pnr: s.pnr, app: null };
             }
           })
@@ -184,7 +222,14 @@ const SuperAdminStudents = () => {
           setStudents((prev) =>
             prev.map((st) => {
               const r = results.find((x) => x.pnr === st.pnr);
-              if (!r || !r.app) return st;
+              if (!r) return st;
+              if (!r.app) {
+                // Mark as enriched even with null to prevent re-fetching
+                return {
+                  ...st,
+                  currentApplication: { status: 'None' },
+                };
+              }
               const a = r.app;
               const currentApplication = {
                 _id: a._id || a.id || null,
@@ -206,7 +251,7 @@ const SuperAdminStudents = () => {
     };
     enrichWithApplications();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, filteredStudents]);
+  }, [page, pageSize]);
 
   const handleAssignRoom = async (student) => {
     setSelectedStudent(student);
@@ -246,36 +291,100 @@ const SuperAdminStudents = () => {
 
   const handleChangeRoom = async (student) => {
     setSelectedStudent(student);
-    setAssignRoomData({ 
-      roomNumber: student.assignedRoom?.roomNumber || '', 
-      floor: student.assignedRoom?.floor || '',
-      hostelId: '' 
+    setChangeRoomData({ 
+      hostelId: '', 
+      roomId: ''
     });
+    setAvailableRooms([]);
     setShowChangeRoomModal(true);
     
-    // Fetch student details to get hostel info
+    // Fetch student details to get gender and current hostel for filtering hostels
     try {
-      setLoadingRooms(true);
+      setLoadingHostels(true);
       const response = await superAdminAPI.getStudentByPNR(student.pnr);
       const studentDetails = apiTransformers.transformStudentDetail(response);
       
-      if (studentDetails?.currentApplication?.hostelId) {
-        // Normalize hostelId (may be object)
-        const hid = typeof studentDetails.currentApplication.hostelId === 'object'
+      // Fetch all hostels and filter by student's gender
+      const hostelsResponse = await superAdminAPI.getAllHostels();
+      let allHostels = [];
+      
+      if (Array.isArray(hostelsResponse)) {
+        allHostels = hostelsResponse;
+      } else if (hostelsResponse?.data?.hostels && Array.isArray(hostelsResponse.data.hostels)) {
+        allHostels = hostelsResponse.data.hostels;
+      } else if (hostelsResponse?.data && Array.isArray(hostelsResponse.data)) {
+        allHostels = hostelsResponse.data;
+      } else if (hostelsResponse?.hostels && Array.isArray(hostelsResponse.hostels)) {
+        allHostels = hostelsResponse.hostels;
+      }
+      
+      // Filter hostels by student's gender
+      const studentGender = studentDetails.gender || student.gender;
+      const filteredHostels = allHostels.filter(hostel => 
+        hostel.gender?.toLowerCase() === studentGender?.toLowerCase()
+      );
+      
+      setAvailableHostels(filteredHostels);
+      
+      // Get current hostel ID and pre-select it
+      let currentHostelId = '';
+      if (studentDetails?.assignedRoom?.hostelId) {
+        currentHostelId = typeof studentDetails.assignedRoom.hostelId === 'object'
+          ? (studentDetails.assignedRoom.hostelId._id || studentDetails.assignedRoom.hostelId.id)
+          : studentDetails.assignedRoom.hostelId;
+      } else if (studentDetails?.currentApplication?.hostelId) {
+        currentHostelId = typeof studentDetails.currentApplication.hostelId === 'object'
           ? (studentDetails.currentApplication.hostelId._id || studentDetails.currentApplication.hostelId.id)
           : studentDetails.currentApplication.hostelId;
-
-        // Fetch available rooms using admin API inventory endpoint
-        const resp = await adminRoomAPI.getAvailableRooms(hid);
-        let roomsData = [];
-        if (Array.isArray(resp)) roomsData = resp;
-        else if (resp?.data?.rooms && Array.isArray(resp.data.rooms)) roomsData = resp.data.rooms;
-        else if (resp?.rooms && Array.isArray(resp.rooms)) roomsData = resp.rooms;
-        else if (resp?.data && Array.isArray(resp.data)) roomsData = resp.data;
-
-        setAvailableRooms(roomsData);
-        setAssignRoomData(prev => ({ ...prev, hostelId: hid }));
       }
+      
+      // Set the current hostel and fetch its available rooms
+      if (currentHostelId) {
+        setChangeRoomData({ hostelId: currentHostelId, roomId: '' });
+        setLoadingHostels(false);
+        setLoadingRooms(true);
+        
+        // Fetch available rooms for current hostel
+        try {
+          const resp = await adminRoomAPI.getAvailableRooms(currentHostelId);
+          let roomsData = [];
+          if (Array.isArray(resp)) roomsData = resp;
+          else if (resp?.data?.rooms && Array.isArray(resp.data.rooms)) roomsData = resp.data.rooms;
+          else if (resp?.rooms && Array.isArray(resp.rooms)) roomsData = resp.rooms;
+          else if (resp?.data && Array.isArray(resp.data)) roomsData = resp.data;
+          
+          setAvailableRooms(roomsData);
+        } catch (err) {
+          console.debug('Failed to fetch current hostel rooms', err);
+        } finally {
+          setLoadingRooms(false);
+        }
+      }
+    } catch (err) {
+      const errorMsg = errorHandlers.parseError(err);
+      showNotification(errorMsg, 'error');
+    } finally {
+      setLoadingHostels(false);
+    }
+  };
+
+  const handleHostelChangeForRoom = async (hostelId) => {
+    setChangeRoomData(prev => ({ ...prev, hostelId, roomId: '' }));
+    setAvailableRooms([]);
+    
+    if (!hostelId) return;
+    
+    try {
+      setLoadingRooms(true);
+      // Fetch available rooms for the selected hostel
+      const resp = await adminRoomAPI.getAvailableRooms(hostelId);
+      let roomsData = [];
+      if (Array.isArray(resp)) roomsData = resp;
+      else if (resp?.data?.rooms && Array.isArray(resp.data.rooms)) roomsData = resp.data.rooms;
+      else if (resp?.rooms && Array.isArray(resp.rooms)) roomsData = resp.rooms;
+      else if (resp?.data && Array.isArray(resp.data)) roomsData = resp.data;
+
+      setAvailableRooms(roomsData);
     } catch (err) {
       const errorMsg = errorHandlers.parseError(err);
       showNotification(errorMsg, 'error');
@@ -300,6 +409,14 @@ const SuperAdminStudents = () => {
       return;
     }
 
+    // Get applicationId from currentApplication
+    const applicationId = selectedStudent?.currentApplication?._id || selectedStudent?.currentApplication?.id;
+    
+    if (!applicationId) {
+      showNotification('Application ID not found. Please refresh and try again.', 'error');
+      return;
+    }
+
     setModalLoading(true);
     // Use request payload builder to create proper API payload
     const payload = requestPayloads.assignRoom({
@@ -308,7 +425,6 @@ const SuperAdminStudents = () => {
       hostelId: assignRoomData.hostelId,
     });
     // Approve application via Admin API endpoint
-    const applicationId = selectedStudent?.currentApplication?._id || selectedStudent?.currentApplication?.id;
     adminApplicationAPI
       .changeApplicationStatus(applicationId, payload, 'APPROVED')
       .then(() => {
@@ -328,7 +444,43 @@ const SuperAdminStudents = () => {
         superAdminAPI.getAllStudents().then((response) => {
           const transformedStudents = apiTransformers.transformStudentsList(response);
           setStudents(transformedStudents);
-          cacheService.set('superadmin_all_students', transformedStudents, 10 * 60 * 1000, 'local');
+          cacheService.set('superadmin_all_students', { version: 'v2', students: transformedStudents }, 10 * 60 * 1000, 'local');
+        });
+      })
+      .catch((err) => {
+        const errorMsg = errorHandlers.parseError(err);
+        showNotification(errorMsg, 'error');
+      })
+      .finally(() => {
+        setModalLoading(false);
+      });
+  };
+
+  const submitChangeRoom = () => {
+    if (!changeRoomData.hostelId || !changeRoomData.roomId) {
+      showNotification('Please select both hostel and room', 'error');
+      return;
+    }
+
+    setModalLoading(true);
+    // Use the new change-room API
+    superAdminAPI
+      .changeStudentRoom(selectedStudent.pnr, {
+        hostelId: changeRoomData.hostelId,
+        roomId: changeRoomData.roomId,
+      })
+      .then(() => {
+        showNotification('Room changed successfully', 'success');
+        setShowChangeRoomModal(false);
+        setChangeRoomData({ hostelId: '', roomId: '' });
+        setAvailableRooms([]);
+        setAvailableHostels([]);
+        cacheService.remove('superadmin_all_students', 'local');
+        // Refresh the list
+        superAdminAPI.getAllStudents().then((response) => {
+          const transformedStudents = apiTransformers.transformStudentsList(response);
+          setStudents(transformedStudents);
+          cacheService.set('superadmin_all_students', { version: 'v2', students: transformedStudents }, 10 * 60 * 1000, 'local');
         });
       })
       .catch((err) => {
@@ -361,7 +513,7 @@ const SuperAdminStudents = () => {
         superAdminAPI.getAllStudents().then((response) => {
           const transformedStudents = apiTransformers.transformStudentsList(response);
           setStudents(transformedStudents);
-          cacheService.set('superadmin_all_students', transformedStudents, 10 * 60 * 1000, 'local');
+          cacheService.set('superadmin_all_students', { version: 'v2', students: transformedStudents }, 10 * 60 * 1000, 'local');
         });
       })
       .catch((err) => {
@@ -399,7 +551,7 @@ const SuperAdminStudents = () => {
         superAdminAPI.getAllStudents().then((response) => {
           const transformedStudents = apiTransformers.transformStudentsList(response);
           setStudents(transformedStudents);
-          cacheService.set('superadmin_all_students', transformedStudents, 10 * 60 * 1000, 'local');
+          cacheService.set('superadmin_all_students', { version: 'v2', students: transformedStudents }, 10 * 60 * 1000, 'local');
         });
       })
       .catch((err) => {
@@ -488,28 +640,44 @@ const SuperAdminStudents = () => {
                         {student.isBlacklisted ? 'Blacklisted' : 'Active'}
                       </span>
                     </td>
-                    <td>{student.assignedRoom?.roomNumber || 'N/A'}</td>
+                    <td>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ fontWeight: '500' }}>{student.roomNumber || 'N/A'}</span>
+                        {student?.floor && (
+                          <span style={{ fontSize: '0.85rem', color: '#666' }}>
+                            {student.floor}
+                          </span>
+                        )}
+                        {student?.hostelName && (
+                          <span style={{ fontSize: '0.85rem', color: '#666' }}>
+                            {student.hostelName}
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td>
                       {(() => {
-                        const label = student?.currentApplication?.status || 'None';
-                        const s = String(label).toLowerCase();
-                        const klass = s === 'pending'
+                        const status = student?.applicationStatus || 'NOT_APPLIED';
+                        const statusUpper = String(status).toUpperCase();
+                        const statusClass = statusUpper === 'PENDING'
                           ? 'pending'
-                          : (s === 'approved' || s === 'accepted')
+                          : statusUpper === 'APPROVED'
                           ? 'approved'
-                          : s === 'rejected'
+                          : statusUpper === 'REJECTED'
                           ? 'rejected'
                           : 'none';
+                        const displayStatus = status === 'NOT_APPLIED' ? 'No Application' : status.toUpperCase();
+                        
                         return (
-                          <span className={`status-badge ${klass}`}>
-                            {label === 'None' ? 'No Application' : label}
+                          <span className={`status-badge ${statusClass}`}>
+                            {displayStatus}
                           </span>
                         );
                       })()}
                     </td>
                     <td className="actions-cell">
                       {/* Show Change Room if student has assigned room */}
-                      {student.assignedRoom?.roomNumber ? (
+                      {student.roomNumber ? (
                         <button
                           className="btn btn-sm btn-change-room"
                           onClick={() => handleChangeRoom(student)}
@@ -592,7 +760,7 @@ const SuperAdminStudents = () => {
                         <option value="">Select an available room</option>
                         {availableRooms.map((room) => (
                           <option key={room._id || room.id || room.roomNumber || room.name} value={room.roomNumber || room.name}>
-                            Room {room.roomNumber || room.name} - Floor {room.floor || room.floorNumber || 'N/A'}
+                            Room {room.roomNumber || room.name} - {room.floor || room.floorNumber || 'N/A'}
                           </option>
                         ))}
                       </select>
@@ -634,60 +802,69 @@ const SuperAdminStudents = () => {
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <h2>Change Room for {selectedStudent?.name}</h2>
               <p className="current-room-info">
-                Current Room: <strong>{selectedStudent?.assignedRoom?.roomNumber || 'N/A'}</strong>
+                Current Room: <strong>{selectedStudent?.roomNumber || 'N/A'} {selectedStudent?.floor ? `(${selectedStudent?.floor})` : ''}</strong> 
+                {selectedStudent?.hostelName && <> at <strong>{selectedStudent?.hostelName}</strong></>}
               </p>
-              {loadingRooms ? (
-                <div className="loading-rooms">Loading available rooms...</div>
+              {loadingHostels ? (
+                <div className="loading-hostels">Loading available hostels...</div>
               ) : (
                 <>
                   <div className="form-group">
-                    <label>Select New Room *</label>
-                    {availableRooms.length > 0 ? (
+                    <label>Select Hostel *</label>
+                    {availableHostels.length > 0 ? (
                       <select
-                        value={assignRoomData.roomNumber}
-                        onChange={(e) => {
-                          const selectedRoom = availableRooms.find(r => r.roomNumber === e.target.value);
-                          setAssignRoomData({
-                            ...assignRoomData,
-                            roomNumber: e.target.value,
-                            floor: selectedRoom?.floor || '',
-                          });
-                        }}
+                        value={changeRoomData.hostelId}
+                        onChange={(e) => handleHostelChangeForRoom(e.target.value)}
                         disabled={modalLoading}
-                        className="room-select"
+                        className="hostel-select"
                       >
-                        <option value="">Select an available room</option>
-                        {availableRooms.map((room) => (
-                          <option key={room._id || room.roomNumber} value={room.roomNumber}>
-                            Room {room.roomNumber} - Floor {room.floor || 'N/A'}
+                        <option value="">Select a hostel</option>
+                        {availableHostels.map((hostel) => (
+                          <option key={hostel._id || hostel.id} value={hostel._id || hostel.id}>
+                            {hostel.name} ({hostel.gender || 'N/A'})
                           </option>
                         ))}
                       </select>
                     ) : (
-                      <div className="no-rooms-message">
-                        No available rooms found for this student's hostel.
+                      <div className="no-hostels-message">
+                        No hostels available for this student's gender.
                       </div>
                     )}
                   </div>
-                  <div className="form-group">
-                    <label>Floor</label>
-                    <input
-                      type="text"
-                      value={assignRoomData.floor}
-                      onChange={(e) =>
-                        setAssignRoomData({ ...assignRoomData, floor: e.target.value })
-                      }
-                      placeholder="Floor"
-                      disabled={true}
-                    />
-                  </div>
+
+                  {changeRoomData.hostelId && (
+                    <div className="form-group">
+                      <label>Select New Room *</label>
+                      {loadingRooms ? (
+                        <div className="loading-rooms">Loading available rooms...</div>
+                      ) : availableRooms.length > 0 ? (
+                        <select
+                          value={changeRoomData.roomId}
+                          onChange={(e) => setChangeRoomData(prev => ({ ...prev, roomId: e.target.value }))}
+                          disabled={modalLoading}
+                          className="room-select"
+                        >
+                          <option value="">Select an available room</option>
+                          {availableRooms.map((room) => (
+                            <option key={room._id || room.id} value={room._id || room.id}>
+                              Room {room.roomNumber || room.name} - {room.floor || room.floorNumber || 'N/A'}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <div className="no-rooms-message">
+                          No available rooms found for this hostel.
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </>
               )}
               <div className="modal-actions">
                 <button
                   className="btn btn-primary"
-                  onClick={() => submitAssignRoom(true)}
-                  disabled={modalLoading || loadingRooms || availableRooms.length === 0}
+                  onClick={submitChangeRoom}
+                  disabled={modalLoading || loadingHostels || loadingRooms || !changeRoomData.hostelId || !changeRoomData.roomId}
                 >
                   {modalLoading ? 'Changing...' : 'Change Room'}
                 </button>
@@ -696,6 +873,8 @@ const SuperAdminStudents = () => {
                   onClick={() => {
                     setShowChangeRoomModal(false);
                     setAvailableRooms([]);
+                    setAvailableHostels([]);
+                    setChangeRoomData({ hostelId: '', roomId: '' });
                   }}
                   disabled={modalLoading}
                 >

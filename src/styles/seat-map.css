@@ -34,14 +34,14 @@
 }
 
 .floor-btn:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #8fa8ff;
+  color: #8fa8ff;
 }
 
 .floor-btn.active {
-  background: #667eea;
+  background: #8fa8ff;
   color: white;
-  border-color: #667eea;
+  border-color: #8fa8ff;
 }
 
 .seat-map {
@@ -170,7 +170,7 @@
   background: white;
   padding: 12px;
   border-radius: 6px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #8fa8ff;
 }
 
 .stat-label {
@@ -185,7 +185,7 @@
   display: block;
   font-size: 20px;
   font-weight: 700;
-  color: #667eea;
+  color: #8fa8ff;
 }
 
 .room-details {

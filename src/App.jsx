@@ -18,17 +18,17 @@ const Applications = lazy(() => import('./pages/Applications'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 
-const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
-const AdminSignUp = lazy(() => import('./pages/admin/AdminSignUp'));
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-const HostelApplications = lazy(() => import('./pages/admin/HostelApplications'));
-const HostelInventory = lazy(() => import('./pages/admin/HostelInventory'));
+const AdminLogin = lazy(() => import('./pages/admin/pages/AdminLogin'));
+const AdminSignUp = lazy(() => import('./pages/admin/pages/AdminSignUp'));
+const AdminDashboard = lazy(() => import('./pages/admin/pages/AdminDashboard'));
+const HostelApplications = lazy(() => import('./pages/admin/pages/HostelApplications'));
+const HostelInventory = lazy(() => import('./pages/admin/pages/HostelInventory'));
 
 // Super Admin Components
-const SuperAdminDashboard = lazy(() => import('./pages/admin/SuperAdminDashboard'));
-const SuperAdminStudents = lazy(() => import('./pages/admin/SuperAdminStudents'));
-const SuperAdminAdmins = lazy(() => import('./pages/admin/SuperAdminAdmins'));
-const SuperAdminHostels = lazy(() => import('./pages/admin/SuperAdminHostels'));
+const SuperAdminDashboard = lazy(() => import('./pages/admin/pages/SuperAdminDashboard'));
+const SuperAdminStudents = lazy(() => import('./pages/admin/pages/SuperAdminStudents'));
+const SuperAdminAdmins = lazy(() => import('./pages/admin/pages/SuperAdminAdmins'));
+const SuperAdminHostels = lazy(() => import('./pages/admin/pages/SuperAdminHostels'));
 
 const ProtectedRoute = ({ element, isAuthenticated }) => {
   return isAuthenticated ? element : <Navigate to="/signin" />;

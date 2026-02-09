@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useContext, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { adminApplicationAPI, applicationAPI, adminRoomAPI } from '../../lib/api';
-import { NotificationContext } from '../../component/NotificationContext';
-import Pagination from '../../component/Pagination';
-import Layout from '../../layout/Layout';
-import '../../styles/hostel-applications.css';
+import { adminApplicationAPI, applicationAPI, adminRoomAPI } from '../../../lib/api';
+import { NotificationContext } from '../../../component/NotificationContext';
+import Pagination from '../../../component/Pagination';
+import Layout from '../../../layout/Layout';
+import '../../../styles/hostel-applications.css';
 
 const HostelApplications = () => {
   const { hostelId } = useParams();

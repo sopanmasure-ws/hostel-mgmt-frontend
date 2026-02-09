@@ -256,6 +256,14 @@ export const superAdminAPI = {
     return await apiFetch('/superadmin/dashboard/data');
   },
 
+  /**
+   * GET /superadmin/dashboard/detailed
+   * Get detailed dashboard data with all entities (students, admins, hostels, rooms, applications)
+   */
+  getDashboardDetailed: async () => {
+    return await apiFetch('/superadmin/dashboard/detailed');
+  },
+
   // ==================== Admin Management APIs ====================
 
   /**
@@ -364,6 +372,33 @@ export const superAdminAPI = {
    */
   unblacklistStudent: async (pnr) => {
     return await apiFetch(`/superadmin/students/${pnr}/unblacklist`, createRequestOptions('PUT', {}));
+  },
+
+  /**
+   * PUT /superadmin/students/:pnr/change-room
+   * Change student's room (can also change hostel)
+   * Request body: { hostelId, roomId }
+   */
+  changeStudentRoom: async (pnr, changeRoomData) => {
+    return await apiFetch(`/superadmin/students/${pnr}/change-room`, createRequestOptions('PUT', changeRoomData));
+  },
+
+  /**
+   * PUT /superadmin/students/:pnr/removeStudentFromRoom
+   * Remove student from assigned room
+   * Request body: { remark }
+   */
+  removeStudentFromRoom: async (pnr, removeData) => {
+    return await apiFetch(`/superadmin/students/${pnr}/removeStudentFromRoom`, createRequestOptions('PUT', removeData));
+  },
+
+  /**
+   * PUT /superadmin/students/:pnr/reassign-room
+   * Reassign student's room
+   * Request body: { hostelId, roomId, remark }
+   */
+  reassignStudentRoom: async (pnr, reassignData) => {
+    return await apiFetch(`/superadmin/students/${pnr}/reassign-room`, createRequestOptions('PUT', reassignData));
   },
 
   // ==================== Hostel Management APIs ====================
@@ -578,6 +613,10 @@ export const apiTransformers = {
         isActive: student.isActive ?? true,
         isBlacklisted: student.isBlacklisted ?? false,
         assignedRoom,
+        roomNumber: student.roomNumber || null,
+        floor: student.floor || null,
+        hostelName: student.hostelName || null,
+        applicationStatus: student.applicationStatus || null,
         currentApplication,
         createdAt: student.createdAt,
       };
@@ -619,6 +658,10 @@ export const apiTransformers = {
       isActive: student.isActive ?? true,
       isBlacklisted: student.isBlacklisted ?? false,
       assignedRoom,
+      roomNumber: student.roomNumber || null,
+      floor: student.floor || null,
+      hostelName: student.hostelName || null,
+      applicationStatus: student.applicationStatus || null,
       createdAt: student.createdAt,
       currentApplication: {
         _id: application._id || null,

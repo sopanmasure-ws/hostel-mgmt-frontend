@@ -72,7 +72,7 @@ const ApplicationForm = () => {
         }
         setFormReady(true);
       } catch (error) {
-        console.log('No existing applications found or PNR not available');
+        // No existing applications found or PNR not available
         setFormReady(true);
       } finally {
         setChecking(false);

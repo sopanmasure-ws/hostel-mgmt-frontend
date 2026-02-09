@@ -7,12 +7,12 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { NotificationContext } from '../../component/NotificationContext';
-import { superAdminAPI, apiTransformers, requestPayloads, errorHandlers } from '../../lib/api';
-import { cacheService } from '../../lib/services/cacheService';
-import Pagination from '../../component/Pagination';
-import Layout from '../../layout/Layout';
-import '../../styles/superadmin-admins.css';
+import { NotificationContext } from '../../../component/NotificationContext';
+import { superAdminAPI, apiTransformers, requestPayloads, errorHandlers } from '../../../lib/api';
+import { cacheService } from '../../../lib/services/cacheService';
+import Pagination from '../../../component/Pagination';
+import Layout from '../../../layout/Layout';
+import '../../../styles/superadmin-admins.css';
 
 const SuperAdminAdmins = () => {
   const dispatch = useDispatch();

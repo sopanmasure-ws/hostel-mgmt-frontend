@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { NotificationContext } from '../../component/NotificationContext';
-import { setRooms, setFilter } from '../../store/adminSlice';
-import { adminRoomAPI } from '../../lib/api';
-import { cacheService } from '../../lib/services/cacheService';
-import Layout from '../../layout/Layout';
-import SeatMap from '../../component/SeatMap';
-import '../../styles/admin-inventory.css';
+import { NotificationContext } from '../../../component/NotificationContext';
+import { setRooms, setFilter } from '../../../store/adminSlice';
+import { adminRoomAPI } from '../../../lib/api';
+import { cacheService } from '../../../lib/services/cacheService';
+import Layout from '../../../layout/Layout';
+import SeatMap from '../../../component/SeatMap';
+import '../../../styles/admin-inventory.css';
 
 const HostelInventory = () => {
   const { hostelId } = useParams();

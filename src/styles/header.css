@@ -66,7 +66,7 @@
 
 .admin-badge {
   font-size: 14px;
-  color: #667eea;
+  color: #8fa8ff;
   font-weight: 600;
   padding: 4px 8px;
   background: #f0f0ff;
@@ -74,7 +74,7 @@
 }
 
 .admin-panel-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #8fa8ff 0%, #b59adf 100%);
   color: white;
 }
 
@@ -84,7 +84,7 @@
 }
 
 .admin-login-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #8fa8ff 0%, #b59adf 100%);
   color: white;
   font-weight: 700;
 }
@@ -104,7 +104,7 @@
 }
 
 .student-signin-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #8fa8ff 0%, #b59adf 100%);
   color: white;
   font-weight: 700;
 }

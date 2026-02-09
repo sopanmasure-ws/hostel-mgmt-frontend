@@ -44,12 +44,12 @@
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #8fa8ff;
 }
 
 .stat-card h3 {
   font-size: 32px;
-  color: #667eea;
+  color: #8fa8ff;
   margin: 0 0 8px 0;
 }
 
@@ -176,4 +176,93 @@
   padding: 40px;
   font-size: 18px;
   color: #666;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .admin-dashboard {
+    padding: 20px;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hostels-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard {
+    padding: 15px;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+  }
+
+  .admin-welcome h1 {
+    font-size: 24px;
+  }
+
+  .admin-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .admin-actions button {
+    width: 100%;
+    min-height: 44px; /* Touch-friendly */
+  }
+
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .hostels-section h2 {
+    font-size: 20px;
+  }
+
+  .hostels-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hostel-actions {
+    flex-direction: column;
+  }
+
+  .hostel-actions .btn {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-dashboard {
+    padding: 10px;
+  }
+
+  .admin-header {
+    padding: 15px;
+  }
+
+  .admin-welcome h1 {
+    font-size: 20px;
+  }
+
+  .stat-card h3 {
+    font-size: 24px;
+  }
+
+  .stat-card p {
+    font-size: 12px;
+  }
+
+  .hostel-info {
+    padding: 15px;
+  }
 }

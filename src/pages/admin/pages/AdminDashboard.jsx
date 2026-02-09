@@ -1,13 +1,13 @@
 import React, { useState, useContext, useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { NotificationContext } from '../../component/NotificationContext';
-import { setCurrentHostel, setAdminHostels } from '../../store/adminSlice';
-import { adminHostelAPI } from '../../lib/api';
-import { cacheService } from '../../lib/services/cacheService';
-import Pagination from '../../component/Pagination';
-import Layout from '../../layout/Layout';
-import '../../styles/admin-dashboard.css';
+import { NotificationContext } from '../../../component/NotificationContext';
+import { setCurrentHostel, setAdminHostels } from '../../../store/adminSlice';
+import { adminHostelAPI } from '../../../lib/api';
+import { cacheService } from '../../../lib/services/cacheService';
+import Pagination from '../../../component/Pagination';
+import Layout from '../../../layout/Layout';
+import '../../../styles/admin-dashboard.css';
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();

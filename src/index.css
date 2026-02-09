@@ -1,3 +1,5 @@
+@import './styles/variables.css';
+
 /* Base Styles */
 * {
   margin: 0;
@@ -10,9 +12,9 @@ html, body {
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f8f9fa;
-  color: #333333;
+  font-family: var(--font-family);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   line-height: 1.6;
 }
 

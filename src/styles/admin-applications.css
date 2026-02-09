@@ -26,7 +26,7 @@
 .btn-back {
   background: none;
   border: none;
-  color: #667eea;
+  color: #8fa8ff;
   font-size: 16px;
   cursor: pointer;
   margin-bottom: 10px;
@@ -64,14 +64,14 @@
 }
 
 .filter-btn:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #8fa8ff;
+  color: #8fa8ff;
 }
 
 .filter-btn.active {
-  background: #667eea;
+  background: #8fa8ff;
   color: white;
-  border-color: #667eea;
+  border-color: #8fa8ff;
 }
 
 .applications-list {
@@ -94,7 +94,7 @@
 }
 
 .application-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #8fa8ff 0%, #b59adf 100%);
   color: white;
   padding: 20px;
   display: flex;
@@ -242,4 +242,100 @@
   padding: 40px;
   font-size: 18px;
   color: #666;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .admin-applications {
+    padding: 20px;
+  }
+
+  .applications-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-applications {
+    padding: 15px;
+  }
+
+  .applications-header {
+    padding: 20px;
+  }
+
+  .applications-header h1 {
+    font-size: 22px;
+  }
+
+  .filter-tabs {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .filter-tab {
+    flex: 1;
+    min-width: 100px;
+    min-height: 44px;
+  }
+
+  .applications-grid {
+    gap: 15px;
+  }
+
+  .application-card {
+    padding: 15px;
+  }
+
+  .application-header h3 {
+    font-size: 16px;
+  }
+
+  .application-info {
+    padding: 15px;
+  }
+
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .application-actions {
+    padding: 15px;
+    flex-direction: column;
+  }
+
+  .application-actions .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-applications {
+    padding: 10px;
+  }
+
+  .applications-header {
+    padding: 15px;
+  }
+
+  .applications-header h1 {
+    font-size: 20px;
+  }
+
+  .filter-tab {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .application-header h3 {
+    font-size: 14px;
+  }
+
+  .info-label,
+  .info-value {
+    font-size: 12px;
+  }
 }

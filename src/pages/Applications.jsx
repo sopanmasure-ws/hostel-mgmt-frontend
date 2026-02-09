@@ -55,7 +55,6 @@ const Applications = () => {
     fetchApplications();
   }, [isAuthenticated, user?.pnr, navigate, showNotification]);
 
-  console.log('Hostels in map computation:', hostels);
   const hostelMap = useMemo(() => {
     const map = {};
     hostels?.forEach((hostel) => {
@@ -117,7 +116,7 @@ const Applications = () => {
                 <div key={application.id} className="application-card">
                   <div className="app-header">
                     <div>
-                      <h3>{hostel?.name || 'Hostel'}</h3>
+                      <h3>{application?.hostelId?.name || 'Hostel'}</h3>
                       <p className="app-date">
                         Applied on: {formatDate(application.appliedOn)}
                       </p>
@@ -139,7 +138,7 @@ const Applications = () => {
 
                       <div className="detail-item">
                         <span className="label">Hostel Name:</span>
-                        <span className="value">{hostel?.name || 'N/A'}</span>
+                        <span className="value">{application?.hostelId?.name|| 'N/A'}</span>
                       </div>
 
                       <div className="detail-item">
