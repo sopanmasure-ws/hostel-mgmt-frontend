@@ -44,6 +44,9 @@ const AdminLogin: React.FC = () => {
         password: password,
       })
       .then((response: any) => {
+        // Debug: Log the response to check structure
+        console.log('Admin Login Response:', response);
+        
         const role = response.data.admin?.role || response.data.role || 'admin'; // Default to admin if role not provided
         const admin = {
           id: response.data.admin.adminId || response._id,
@@ -59,7 +62,11 @@ const AdminLogin: React.FC = () => {
         
         if (response.data.admin.token || response.data.token) {
           const token = response.data.admin.token || response.data.token;
+          console.log('Storing admin token:', token);
           tokenService.setAdminToken(token, response.data.expiryTime);
+          console.log('Admin token stored. Verifying:', tokenService.getAdminToken());
+        } else {
+          console.warn('No admin token in response!');
         }
         
         // Save admin user with role included

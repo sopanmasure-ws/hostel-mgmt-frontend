@@ -47,27 +47,34 @@ const SignIn: React.FC = () => {
     setLoading(true);
     try {
       const response = await authAPI.login({ email, password });
+      
+      // Debug: Log the response to check structure
+      console.log('Login Response:', response);
 
-      if (response.success || response.token) {
+      if (response.success || response.data?.token) {
         const userData = {
-          id: response.user?.id,
-          name: response.user?.name,
-          email: response.user?.email,
-          pnr: response.user?.pnr,
-          gender: response.user?.gender,
-          year: response.user?.year,
+          id: response.data?.user?._id || response.data?.user?.id,
+          name: response.data?.user?.name,
+          email: response.data?.user?.email,
+          pnr: response.data?.user?.pnr,
+          gender: response.data?.user?.gender,
+          year: response.data?.user?.year,
         };
 
         // Store token and user data
-        if (response.token) {
-          tokenService.setStudentToken(response.token, response.expiryTime);
+        if (response.data?.token) {
+          console.log('Storing token:', response.data.token);
+          tokenService.setStudentToken(response.data.token, response.data.expiryTime);
+          console.log('Token stored. Verifying:', tokenService.getStudentToken());
+        } else {
+          console.warn('No token in response!');
         }
         tokenService.setStudentUser(userData);
 
         // Update Redux
         dispatch(loginSuccess(userData));
         
-        showNotification(`${LABELS.WELCOME}, ${response.user?.name}!`, 'success');
+        showNotification(`${LABELS.WELCOME}, ${response.data?.user?.name}!`, 'success');
         setTimeout(() => navigate(ROUTES.DASHBOARD), DELAYS.REDIRECT);
       }
     } catch (err) {
